@@ -9,6 +9,7 @@ SoproX is a tool that helps developers to conveniently create a Solana Rust-base
 
 ## Quick Overview
 
+Before running your app, please make sure you follow all steps in [Installation](#instalation) to completely install crucial development environment.
 To create your app, named `my-app`, you can run it immediately by following commands:
 
 ```
@@ -22,6 +23,8 @@ npm start
 ```
 
 SoproX will generate a basic form of a SRP for you including an on-chain program and a off-chain client. Then you can modify these files to build up your owned programs.
+
+## <a name="instalation"></a>Instalation
 
 ## Version Confusion
 
