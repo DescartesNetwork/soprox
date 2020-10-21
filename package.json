@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Soprox - Quickly create a Solana Rust-based program with no build configuration",
   "main": "index.js",
+  "bin": "./index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/DescartesNetwork/soprox/issues"
   },
-  "homepage": "https://github.com/DescartesNetwork/soprox#readme"
+  "homepage": "https://github.com/DescartesNetwork/soprox#readme",
+  "dependencies": {
+    "ncp": "^2.0.0",
+    "ora": "^5.1.0",
+    "rimraf": "^3.0.2"
+  }
 }
