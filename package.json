@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "Soprox - Securely create a Solana Rust-based program with no build configuration",
   "main": "index.js",
-  "bin": "index.js",
   "testnetDefaultChannel": "v1.3.12",
   "scripts": {
     "start": "node src/client/main.js",
