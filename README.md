@@ -32,6 +32,7 @@ All the version should be shown
 ```
 $ node --version
 $ npm --version
+$ npx --version
 $ docker -v
 $ wget --version
 $ rustup --version
