@@ -1,6 +1,31 @@
-# senswap-contract
+# SoproX
 
-## Versioning
+SoproX is a tool that helps developers to conveniently create a Solana Rust-based program (SRP) with no build configuration.
+
+## Etymology
+
+- **So** for Solana
+- **proX** for proDucing a proGram
+
+## Quick Overview
+
+To create your app, named `my-app`, you can run it immediately by following commands:
+
+```
+npx soprox my-app
+cd my-app
+npm run localnet:update
+npm run localnet:up
+npm install
+npm build
+npm start
+```
+
+SoproX will generate a basic form of a SRP for you including an on-chain program and a off-chain client. Then you can modify these files to build up your owned programs.
+
+## Version Confusion
+
+*(Cited from [pinned messages](https://discordapp.com/channels/428295358100013066/517163444747894795/750030218575741028) in the Solana Discord)*
 
 There has been some understandable confusion around deploying programs and the versions of the various Solana tools.  To help clarify and give current status:
 - A new BPF loader is in the process of being deployed, it's called BPFLoader2
