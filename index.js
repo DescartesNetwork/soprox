@@ -2,13 +2,13 @@
 
 const fs = require('fs');
 const path = require('path');
-const { exec } = require("child_process");
+const { exec } = require('child_process');
 const fsx = require('fs-extra');
 const rimraf = require('rimraf');
 const ora = require('ora');
 const logger = require('./logger');
 const parser = require('./parser');
-const { isIgnored, getVersion, showHelpText } = require('./util');
+const { isIgnored, showVersion, showHelpText, addGit } = require('./util');
 
 const PACKAGES = './packages';
 const IGNORES = [
@@ -22,7 +22,7 @@ const IGNORES = [
 const params = parser.parse();
 
 // Version
-if (params.version) return logger.log(getVersion());
+if (params.version) return showVersion();
 // Help text
 if (params.help) return showHelpText();
 
@@ -36,7 +36,7 @@ if (fs.existsSync(dir)) {
 else fs.mkdirSync(dir);
 // Import project
 const spinner = ora({ color: 'yellow', text: 'Loading magic...' }).start();
-spinner.terminate = function (ok) {
+spinner.terminate = (ok) => {
   if (ok) return spinner.succeed('Yay, Downloaded magic!\n');
   logger.error('Some errors has occured.\n');
   return spinner.stop('Fail!');
@@ -45,15 +45,18 @@ return fsx.copy(path.join(__dirname, PACKAGES), dir, {
   filter: function (src, dest) {
     return !isIgnored(IGNORES, src);
   }
-}, function (er) {
-  if (er) return rimraf(dir, function () {
-    return spinner.stop(false);
-  });
+}, (er) => {
+  if (er) return rimraf(dir, () => spinner.terminate(false));
+
   spinner.terminate(true);
-  const child = exec('npm install', { cwd: dir }, function (er, stdout, stderr) {
+  return addGit(params.git, dir, (er) => {
     if (er) return logger.error(er);
-    return logger.note('Done! Happy coding. 👐\n');
+
+    const child = exec('npm install', { cwd: dir }, (er, stdout, stderr) => {
+      if (er) return logger.error(er);
+      return logger.note('Done! Happy coding. 👐\n');
+    });
+    child.stdout.pipe(process.stdout);
+    child.stderr.pipe(process.stderr);
   });
-  child.stdout.pipe(process.stdout);
-  child.stderr.pipe(process.stderr);
 });
