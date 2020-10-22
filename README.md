@@ -13,11 +13,10 @@ Before running your app, please make sure you follow all steps in [Installation]
 To create your app, named `my-app`, you can run it immediately by following commands:
 
 ```
-$ npx soprox my-app
+$ npx soprox --name my-app
 $ cd my-app
 $ npm run localnet:update
 $ npm run localnet:up
-$ npm install
 $ npm build
 $ npm start
 ```
