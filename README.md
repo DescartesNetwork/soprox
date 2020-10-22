@@ -33,7 +33,6 @@ $ node --version
 $ npm --version
 $ npx --version
 $ docker -v
-$ wget --version
 $ rustup --version
 $ rustc --version
 $ cargo --version

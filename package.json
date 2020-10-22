@@ -2,10 +2,12 @@
   "name": "soprox",
   "version": "0.0.1",
   "description": "Soprox - Quickly create a Solana Rust-based program with no build configuration",
-  "main": "index.js",
-  "bin": "index.js",
+  "main": "lib/index.js",
+  "bin": "bin/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "release": "npm run build && npm publish",
+    "build": "npm run clean && babel lib -d bin",
+    "clean": "rm -rf ./bin"
   },
   "repository": {
     "type": "git",
@@ -21,5 +23,12 @@
     "fs-extra": "^9.0.1",
     "ora": "^5.1.0",
     "rimraf": "^3.0.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/plugin-transform-arrow-functions": "^7.12.1",
+    "@babel/preset-env": "^7.12.1"
   }
 }
