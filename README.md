@@ -9,19 +9,35 @@ SoproX is a tool that helps developers to conveniently create a Solana Rust-base
 
 ## Quick Overview
 
+Before running your app, please make sure you follow all steps in [Installation](#installation) to completely install crucial development environment.
 To create your app, named `my-app`, you can run it immediately by following commands:
 
 ```
-npx soprox my-app
-cd my-app
-npm run localnet:update
-npm run localnet:up
-npm install
-npm build
-npm start
+$ npx soprox --name my-app
+$ cd my-app
+$ npm run localnet:update
+$ npm run localnet:up
+$ npm build
+$ npm start
 ```
 
 SoproX will generate a basic form of a SRP for you including an on-chain program and a off-chain client. Then you can modify these files to build up your owned programs.
+
+## <a name="installation"></a>Installation
+
+If this is your first time, try this [Installtion Notes](https://github.com/solana-labs/example-helloworld/blob/master/README-installation-notes.md) that is authentic from Solana.
+
+All the version should be shown
+```
+$ node --version
+$ npm --version
+$ npx --version
+$ docker -v
+$ wget --version
+$ rustup --version
+$ rustc --version
+$ cargo --version
+```
 
 ## Version Confusion
 
