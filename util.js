@@ -25,7 +25,7 @@ function showHelpText() {
   logger.log('Usage: soprox <project_name> [options]');
   logger.log('\toptions:');
   logger.log('\t\t-g, --git: add your git repo');
-  logger.log('\t\t-f, --force: even though the project name has existed, install program anyway');
+  logger.log('\t\t-f, --force: even though the project name has existed, overwrite the program anyway');
   logger.log('\t\t-v, --version: show version');
   logger.log('\t\t-h, --help: show help text');
   process.exit(1);

@@ -2,7 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { ncp } = require('ncp');
+const { exec } = require("child_process");
+const fsx = require('fs-extra');
 const rimraf = require('rimraf');
 const ora = require('ora');
 const logger = require('./logger');
@@ -29,18 +30,30 @@ if (params.help) return showHelpText();
 logger.info('\n👏👏👏 Thank you for using SoproX!\n');
 const dir = path.join(process.cwd(), params.name);
 // Create project folder
-if (fs.existsSync(dir)) return logger.error('Your project that already existed. Please change another name and try again!');
-fs.mkdirSync(dir);
+if (fs.existsSync(dir)) {
+  if (!params.force) return logger.error('Your project that already existed. Please change another name and try again!');
+}
+else fs.mkdirSync(dir);
 // Import project
-const spinner = ora({ color: 'yellow', text: 'Loading magic' }).start();
-return ncp(path.join(__dirname, PACKAGES), dir, {
-  filter: function (name) {
-    return !isIgnored(IGNORES, name);
+const spinner = ora({ color: 'yellow', text: 'Loading magic...' }).start();
+spinner.terminate = function (ok) {
+  if (ok) return spinner.succeed('Yay, Downloaded magic!\n');
+  logger.error('Some errors has occured.\n');
+  return spinner.stop('Fail!');
+}
+return fsx.copy(path.join(__dirname, PACKAGES), dir, {
+  filter: function (src, dest) {
+    return !isIgnored(IGNORES, src);
   }
 }, function (er) {
   if (er) return rimraf(dir, function () {
-    logger.error('Some errors has occured');
-    return spinner.stop('Fail!');
+    return spinner.stop(false);
   });
-  return spinner.succeed('Yay! Happy coding. 👐');
+  spinner.terminate(true);
+  const child = exec('npm install', { cwd: dir }, function (er, stdout, stderr) {
+    if (er) return logger.error(er);
+    return logger.note('Done! Happy coding. 👐\n');
+  });
+  child.stdout.pipe(process.stdout);
+  child.stderr.pipe(process.stderr);
 });
