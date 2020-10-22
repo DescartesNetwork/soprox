@@ -1,4 +1,4 @@
-# SoproX
+# 🌊 SoproX
 
 SoproX is a tool that helps developers to conveniently create a Solana Rust-based program (SRP) with no build configuration.
 
