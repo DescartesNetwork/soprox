@@ -5,7 +5,7 @@ SoproX is a tool that helps developers to conveniently create a Solana Rust-base
 ## Etymology
 
 - **So** for Solana
-- **proX** for proDucing a proGram
+- **proX** for proDUCING a proGRAM
 
 ## Quick Overview
 
