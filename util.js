@@ -23,8 +23,9 @@ const showVersion = () => {
 
 const showHelpText = () => {
   logger.note(`Soprox ${package.version}`)
-  logger.info('Usage: soprox <project_name> [options]');
+  logger.info('Usage: soprox -n <project_name> [options]');
   logger.log('Options:');
+  logger.log('\t-n, --name: your project name');
   logger.log('\t-g, --git: (🧪 not yet) add your git repo');
   logger.log('\t-f, --force: even though the project name has existed, overwrite the program anyway');
   logger.log('\t-v, --version: show version');
