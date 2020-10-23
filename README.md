@@ -2,6 +2,8 @@
 
 SoproX is a tool that helps developers to conveniently create a Solana Rust-based program (SRP) with no build configuration.
 
+[Documentation](https://soprox.descartes.network)
+
 ## Etymology
 
 - **So** for Solana
@@ -17,7 +19,7 @@ $ npx soprox --name my-app
 $ cd my-app
 $ npm run localnet:update
 $ npm run localnet:up
-$ npm build
+$ npm run build
 $ npm start
 ```
 
