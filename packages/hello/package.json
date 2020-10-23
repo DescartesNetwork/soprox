@@ -1,7 +1,7 @@
 {
-  "name": "soprox",
+  "name": "hello",
   "version": "0.0.1",
-  "description": "Soprox - Quickly create a Solana Rust-based program with no build configuration",
+  "description": "Created by Soprox",
   "main": "index.js",
   "testnetDefaultChannel": "v1.3.12",
   "scripts": {
