@@ -55,7 +55,7 @@ async function establishPayer() {
       (BpfLoader.getMinNumSignatures(data.length) + NUM_RETRIES) +
       (await connection.getMinimumBalanceForRentExemption(data.length));
     // Calculate the cost to fund the greeter account
-    fees += await await connection.getMinimumBalanceForRentExemption(
+    fees += await connection.getMinimumBalanceForRentExemption(
       greetedAccountDataLayout.span,
     );
     // Calculate the cost of sending the transactions
@@ -100,9 +100,7 @@ async function loadProgram() {
   greetedPubkey = greetedAccount.publicKey;
   console.log('Creating account', greetedPubkey.toBase58(), 'to say hello to');
   const space = greetedAccountDataLayout.span;
-  const lamports = await connection.getMinimumBalanceForRentExemption(
-    greetedAccountDataLayout.span,
-  );
+  const lamports = await connection.getMinimumBalanceForRentExemption(space);
   let transaction = new Transaction();
   transaction.add(SystemProgram.createAccount({
     fromPubkey: payerAccount.publicKey,
