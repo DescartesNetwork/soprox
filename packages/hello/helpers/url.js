@@ -10,11 +10,11 @@ function chooseCluster() {
   switch (process.env.CLUSTER) {
     case 'devnet':
     case 'testnet':
-    case 'mainnet-beta': {
+    case 'mainnet-beta':
       return process.env.CLUSTER;
-    }
+    default:
+      throw 'Unknown cluster "' + process.env.CLUSTER + '", check the .env file';
   }
-  throw 'Unknown cluster "' + process.env.CLUSTER + '", check the .env file';
 }
 
 const cluster = chooseCluster();
@@ -27,7 +27,7 @@ const urlTls =
   process.env.RPC_URL ||
   (process.env.LIVE ? clusterApiUrl(cluster, true) : 'http://localhost:8899');
 
-  const walletUrl =
+const walletUrl =
   process.env.WALLET_URL || 'https://solana-example-webwallet.herokuapp.com/';
 
 
