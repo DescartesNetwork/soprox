@@ -1,13 +1,18 @@
-const { Account, LAMPORTS_PER_SOL } = require('@solana/web3.js');
+const { Account, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
 const BufferLayout = require('buffer-layout');
 const { deployProgram, deployRegister } = require('../helpers/network');
 const store = require('../helpers/store');
 
-
+/**
+ * Sync sleep
+ */
 const sleep = (ms) => {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Devnet airdrop
+ */
 const airdrop = async (connection, account, lamports = 100 * LAMPORTS_PER_SOL) => {
   let retries = 10;
   const accountId = account.publicKey;
@@ -53,46 +58,54 @@ async function establishPayer(connection) {
 async function loadProgram(data, payer, connection) {
   const filename = 'program.json';
   // Check if the program has already been loaded
-  let config = store.load(filename);
+  const config = store.load(filename);
   history: if (config) {
-    const [{ program: { id, data: prevData } }] = config;
+    const { id, data: prevData } = config;
     if (Buffer.from(data).toString('hex') != prevData) break history;
     console.log('The program has been loaded at:', id);
-    return config;
+    return new PublicKey(id);
   }
 
   // Load the program
   const program = await deployProgram(data, payer, connection);
-  const programId = program.publicKey;
-  console.log('Deploying the program:', programId.toBase58());
+  const adress = program.publicKey.toBase58();
+  console.log('Deploying the program:', adress);
+
+  // Save this info for next time
+  store.save(filename, {
+    id: adress,
+    name: 'hello',
+    data: Buffer.from(data).toString('hex')
+  });
+  return program.publicKey;
+}
+
+/**
+ * Load registers
+ */
+loadRegisters = async (payer, programId, connection) => {
+  const filename = 'registers.json';
+  let config = store.load(filename);
+  if (config) return config.map(({ id, name }) => ({ id: new PublicKey(id), name }));
 
   // Create the greeted account
   const space = greeterDataLayout.span;
-  const greeter = await deployRegister(space, payer, program, connection);
-  const greeterId = greeter.publicKey;
-  console.log('Creating a register:', greeterId.toBase58());
+  const greeter = await deployRegister(space, payer, programId, connection);
+  const address = greeter.publicKey.toBase58();
+  console.log('Creating a register:', address);
 
   // Save this info for next time
   config = [
     {
-      program: {
-        id: programId.toBase58(),
-        name: 'hello',
-        data: Buffer.from(data).toString('hex')
-      }
-    },
-    {
-      register: {
-        id: greeterId.toBase58(),
-        name: 'numGreets',
-        types: 'uint32',
-        bytes: space
-      }
+      id: address,
+      name: 'numGreets',
+      types: 'uint32',
+      bytes: space
     }
   ]
   store.save(filename, config);
-  return config;
+  return config.map(({ id, name }) => ({ id: new PublicKey(id), name }));
 }
 
 
-module.exports = { establishPayer, loadProgram }
+module.exports = { establishPayer, loadProgram, loadRegisters }
