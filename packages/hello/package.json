@@ -8,7 +8,7 @@
     "start": "node src/client/main.js",
     "bpf-sdk:update": "solana-bpf-sdk-install node_modules/@solana/web3.js && npm run clean",
     "clean:store": "rm -rf store",
-    "build": "./src/program/do.sh build && npm run clean:store",
+    "build": "./src/program/do.sh build",
     "clean": "./src/program/do.sh clean && rm -rf ./dist && npm run clean:store",
     "test": "./src/program/do.sh test",
     "cluster:localnet": "npm run clean:store && rm -f .env",

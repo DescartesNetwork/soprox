@@ -1,11 +1,8 @@
-const { Account, PublicKey, BpfLoader, LAMPORTS_PER_SOL } = require('@solana/web3.js');
-const fs = require('fs');
+const { Account, LAMPORTS_PER_SOL } = require('@solana/web3.js');
 const BufferLayout = require('buffer-layout');
-const { urlTls } = require('../helpers/url');
 const { deployProgram, deployRegister } = require('../helpers/network');
 const store = require('../helpers/store');
 
-const pathToProgram = './dist/program/main.so';
 
 const sleep = (ms) => {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -53,49 +50,48 @@ async function establishPayer(connection) {
 /**
  * Load the hello world BPF program if not already loaded
  */
-async function loadProgram(payer, connection) {
+async function loadProgram(data, payer, connection) {
   const filename = 'program.json';
   // Check if the program has already been loaded
   let config = store.load(filename);
-  if (config) {
-    const [
-      { program: { id: _programId } },
-      { register: { id: _greeterId, bytes, type } },
-    ] = config;
-    const programId = new PublicKey(_programId);
-    const greeterId = new PublicKey(_greeterId);
-    return { programId, greeterId }
+  history: if (config) {
+    const [{ program: { id, data: prevData } }] = config;
+    if (Buffer.from(data).toString('hex') != prevData) break history;
+    console.log('The program has been loaded at:', id);
+    return config;
   }
 
   // Load the program
-  console.log('Loading program...');
-  const data = fs.readFileSync(pathToProgram);
   const program = await deployProgram(data, payer, connection);
   const programId = program.publicKey;
-  console.log('Program loaded to account', programId.toBase58());
+  console.log('Deploying the program:', programId.toBase58());
 
   // Create the greeted account
   const space = greeterDataLayout.span;
   const greeter = await deployRegister(space, payer, program, connection);
   const greeterId = greeter.publicKey;
-  console.log('Creating account', greeterId.toBase58(), 'to say hello to');
+  console.log('Creating a register:', greeterId.toBase58());
 
   // Save this info for next time
-  store.save(filename, [
+  config = [
     {
       program: {
-        id: programId.toBase58()
+        id: programId.toBase58(),
+        name: 'hello',
+        data: Buffer.from(data).toString('hex')
       }
     },
     {
       register: {
         id: greeterId.toBase58(),
+        name: 'numGreets',
         types: 'uint32',
         bytes: space
       }
     }
-  ]);
-  return { programId, greeterId }
+  ]
+  store.save(filename, config);
+  return config;
 }
 
 
