@@ -1,6 +1,9 @@
 const { Account, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
 const BufferLayout = require('buffer-layout');
-const { deployProgram, deployRegister } = require('../helpers/network');
+const {
+  loadPayerFromStore, savePayerToStore,
+  deployProgram, deployRegister,
+} = require('../helpers/network');
 const store = require('../helpers/store');
 
 /**
@@ -37,18 +40,11 @@ const greeterDataLayout = BufferLayout.struct([
  * Establish an account to pay for everything
  */
 async function establishPayer(connection) {
-  const filename = 'payer.json';
-  const data = store.load(filename);
-  if (data) {
-    const { privateKey } = data;
-    return new Account(Buffer.from(privateKey, 'hex'));
-  }
-  const payer = new Account();
+  let payer = loadPayerFromStore();
+  if (payer) return payer;
+  payer = new Account();
   await airdrop(connection, payer);
-  store.save(filename, {
-    address: payer.publicKey.toBase58(),
-    privateKey: Buffer.from(payer.secretKey).toString('hex')
-  });
+  savePayerToStore(payer);
   return payer;
 }
 
@@ -56,7 +52,7 @@ async function establishPayer(connection) {
  * Load the hello world BPF program if not already loaded
  */
 async function loadProgram(data, payer, connection) {
-  const filename = 'program.json';
+  const filename = 'program';
   // Check if the program has already been loaded
   const config = store.load(filename);
   history: if (config) {
@@ -84,7 +80,7 @@ async function loadProgram(data, payer, connection) {
  * Load registers
  */
 loadRegisters = async (payer, programId, connection) => {
-  const filename = 'registers.json';
+  const filename = 'registers';
   let config = store.load(filename);
   if (config) return config.map(({ id, name }) => ({ id: new PublicKey(id), name }));
 

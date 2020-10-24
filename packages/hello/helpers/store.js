@@ -15,7 +15,7 @@ module.exports = {
    */
   load: (filename) => {
     try {
-      filename = path.join(DIR, filename);
+      filename = path.join(DIR, filename + '.json');
       const data = JSON.parse(fs.readFileSync(filename, 'utf8'));
       return data;
     } catch (er) {
@@ -32,7 +32,7 @@ module.exports = {
     } catch (er) {
       // Nothing
     }
-    filename = path.join(DIR, filename);
+    filename = path.join(DIR, filename + '.json');
     data = JSON.stringify(data, null, 2);
     return fs.writeFileSync(filename, data, 'utf8');
   }

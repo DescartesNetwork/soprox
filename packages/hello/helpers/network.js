@@ -4,6 +4,7 @@ const {
   BpfLoader,
 } = require('@solana/web3.js');
 const { url } = require('./url');
+const store = require('./store');
 
 module.exports = {
 
@@ -15,6 +16,22 @@ module.exports = {
     const version = await connection.getVersion();
     console.log('Connection to cluster established:', url, version);
     return connection;
+  },
+
+  /**
+   * Payer
+   */
+  loadPayerFromStore: () => {
+    const data = store.load('payer');
+    if (!data) return null;
+    const { privateKey } = data;
+    return new Account(Buffer.from(privateKey, 'hex'));
+  },
+  savePayerToStore: (payer) => {
+    store.save(filename, {
+      address: payer.publicKey.toBase58(),
+      privateKey: Buffer.from(payer.secretKey).toString('hex')
+    });
   },
 
   /**

@@ -38,7 +38,12 @@ async function sayHello(amount, greeterId, programId, payer, connection) {
   });
   const transaction = new Transaction();
   transaction.add(instruction);
-  await sendAndConfirmTransaction(connection, transaction, payer);
+  await sendAndConfirmTransaction(
+    connection, transaction, [payer],
+    {
+      skipPreflight: true,
+      commitment: 'recent',
+    });
 }
 
 /**
