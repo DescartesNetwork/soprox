@@ -3,8 +3,8 @@ const BufferLayout = require('buffer-layout');
 const {
   loadPayerFromStore, savePayerToStore,
   deployProgram, deployRegister,
-} = require('../helpers/network');
-const store = require('../helpers/store');
+} = require('../lib/network');
+const store = require('../lib/store');
 
 /**
  * Sync sleep

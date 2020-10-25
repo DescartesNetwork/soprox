@@ -20,7 +20,7 @@
     "cluster:mainnet-beta": "npm run clean:store && cp cluster-mainnet-beta.env .env",
     
     "localnet:update": "solana-localnet update",
-    "localnet:up": "set -x; solana-localnet down; set -e; solana-localnet up",
+    "localnet:up": "npm run clean:store && set -x; solana-localnet down; set -e; solana-localnet up",
     "localnet:down": "solana-localnet down",
     "localnet:logs": "solana-localnet logs -f",
 

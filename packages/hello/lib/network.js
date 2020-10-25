@@ -28,7 +28,7 @@ module.exports = {
     return new Account(Buffer.from(privateKey, 'hex'));
   },
   savePayerToStore: (payer) => {
-    store.save(filename, {
+    store.save('payer', {
       address: payer.publicKey.toBase58(),
       privateKey: Buffer.from(payer.secretKey).toString('hex')
     });

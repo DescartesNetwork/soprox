@@ -1,6 +1,6 @@
 const { PublicKey } = require('@solana/web3.js');
-const { establishConnection, loadPayerFromStore } = require('../../helpers/network');
-const store = require('../../helpers/store');
+const { establishConnection, loadPayerFromStore } = require('../../lib/network');
+const store = require('../../lib/store');
 const { sayHello, reportHellos } = require('./app');
 
 

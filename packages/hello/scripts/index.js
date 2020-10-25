@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { establishConnection } = require('../helpers/network');
+const { establishConnection } = require('../lib/network');
 const { establishPayer, loadProgram, loadRegisters } = require('./util');
 
 const pathToProgram = './dist/program/main.so';
