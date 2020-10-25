@@ -1,5 +1,5 @@
 const { Account, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
-const BufferLayout = require('buffer-layout');
+const { u32 } = require('../lib/type');
 const {
   loadPayerFromStore, savePayerToStore,
   deployProgram, deployRegister,
@@ -28,13 +28,6 @@ const airdrop = async (connection, account, lamports = 100 * LAMPORTS_PER_SOL) =
   }
   throw new Error(`Airdrop of ${lamports} failed`);
 }
-
-/**
- * GreeterDataLayout
- */
-const greeterDataLayout = BufferLayout.struct([
-  BufferLayout.u32('numGreets'),
-]);
 
 /**
  * Establish an account to pay for everything
@@ -85,8 +78,8 @@ loadRegisters = async (payer, programId, connection) => {
   if (config) return config.map(({ id, name }) => ({ id: new PublicKey(id), name }));
 
   // Create the greeted account
-  const space = greeterDataLayout.span;
-  const greeter = await deployRegister(space, payer, programId, connection);
+  const numGreets = new u32();
+  const greeter = await deployRegister(numGreets.space, payer, programId, connection);
   const address = greeter.publicKey.toBase58();
   console.log('Creating a register:', address);
 
@@ -95,8 +88,8 @@ loadRegisters = async (payer, programId, connection) => {
     {
       id: address,
       name: 'numGreets',
-      types: 'uint32',
-      bytes: space
+      types: 'u32',
+      bytes: numGreets.space
     }
   ]
   store.save(filename, config);
