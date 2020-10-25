@@ -1,9 +1,0 @@
-/node_modules
-*.sw[po]
-/.cargo
-*.orig
-
-# Build folder
-target
-dist
-store

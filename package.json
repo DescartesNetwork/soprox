@@ -1,13 +1,15 @@
 {
   "name": "soprox",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Soprox - Conveniently create a Solana Rust-based program with no build configuration",
   "main": "lib/index.js",
   "bin": "bin/index.js",
   "scripts": {
     "release": "npm run build && npm publish",
     "build": "npm run clean && babel lib -d bin",
-    "clean": "rm -rf ./bin"
+    "clean": "rm -rf ./bin",
+    "local:install": "npm run build && npm i -g",
+    "local:uninstall": "npm uninstall -g"
   },
   "repository": {
     "type": "git",
