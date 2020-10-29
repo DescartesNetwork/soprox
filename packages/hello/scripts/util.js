@@ -1,5 +1,5 @@
 const { Account, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
-const { u32 } = require('../lib/type');
+const { u32, bool } = require('../lib/type');
 const {
   loadPayerFromStore, savePayerToStore,
   deployProgram, deployRegister,
@@ -79,17 +79,24 @@ loadRegisters = async (payer, programId, connection) => {
 
   // Create the greeted account
   const numGreets = new u32();
+  const toggleState = new bool();
   const greeter = await deployRegister(numGreets.space, payer, programId, connection);
-  const address = greeter.publicKey.toBase58();
-  console.log('Creating a register:', address);
+  const toggler = await deployRegister(toggleState.space, payer, programId, connection);
+  [greeter, toggler].forEach(register => console.log('Creating a register:', register.publicKey.toBase58()));
 
   // Save this info for next time
   config = [
     {
-      id: address,
+      id: greeter.publicKey.toBase58(),
       name: 'numGreets',
       types: 'u32',
       bytes: numGreets.space
+    },
+    {
+      id: toggler.publicKey.toBase58(),
+      name: 'toggleState',
+      types: 'bool',
+      bytes: toggleState.space
     }
   ]
   store.save(filename, config);

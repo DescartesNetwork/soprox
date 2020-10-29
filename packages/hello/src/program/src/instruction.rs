@@ -8,6 +8,7 @@ use std::convert::TryInto;
 #[derive(Clone, Debug, PartialEq)]
 pub enum AppInstruction {
   SayHello { amount: u32 },
+  Toggle { toggle: u8 },
 }
 impl AppInstruction {
   pub fn unpack(instruction: &[u8]) -> Result<Self, ProgramError> {
@@ -22,6 +23,10 @@ impl AppInstruction {
           .map(u32::from_le_bytes)
           .ok_or(AppError::InvalidInstruction)?;
         Self::SayHello { amount }
+      }
+      1 => {
+        let (&toggle, _) = rest.split_first().ok_or(AppError::InvalidInstruction)?;
+        Self::Toggle { toggle }
       }
       _ => return Err(AppError::InvalidInstruction.into()),
     })

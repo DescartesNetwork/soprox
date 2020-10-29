@@ -9,6 +9,7 @@ use solana_sdk::{
   info,
   pubkey::Pubkey,
 };
+use std::cell::{RefCell, RefMut};
 use std::mem;
 
 pub struct Processor {}
@@ -36,6 +37,21 @@ impl Processor {
         let mut num_greets = LittleEndian::read_u32(&data);
         num_greets += amount;
         LittleEndian::write_u32(&mut data[0..], num_greets);
+        Ok(())
+      }
+      AppInstruction::Toggle { toggle } => {
+        info!("Calling Toogle function");
+        let accounts_iter = &mut accounts.iter();
+        let account = next_account_info(accounts_iter)?;
+        if account.owner != program_id {
+          return Err(AppError::IncorrectProgramId.into());
+        }
+        if account.try_data_len()? < mem::size_of::<bool>() {
+          return Err(AppError::Overflow.into());
+        }
+        info!(&toggle.to_string());
+        // let mut data = account.try_borrow_mut_data()?;
+        // data = RefCell::new(toggle).borrow_mut();
         Ok(())
       }
     }

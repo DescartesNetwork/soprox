@@ -1,7 +1,7 @@
 const { PublicKey } = require('@solana/web3.js');
 const { establishConnection, loadPayerFromStore } = require('../../lib/network');
 const store = require('../../lib/store');
-const { sayHello, reportHellos } = require('./app');
+const { sayHello, reportHellos, callToggle } = require('./app');
 
 
 const init = async () => {
@@ -19,8 +19,9 @@ const init = async () => {
 const main = async () => {
   console.log("Let's say hello to a Solana account...");
   const { connection, payer, programId, registers } = await init();
-  await sayHello(2, registers[0].id, programId, payer, connection); // Say hello to an account
-  await reportHellos(registers[0].id, connection); // Find out how many times that account has been greeted
+  await sayHello(2, registers[0].id, programId, payer, connection);
+  await callToggle(false, registers[1].id, programId, payer, connection);
+  await reportHellos(registers[0].id, connection);
   console.log('Success');
 }
 
