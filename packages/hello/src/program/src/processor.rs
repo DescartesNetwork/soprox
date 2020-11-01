@@ -9,7 +9,6 @@ use solana_sdk::{
   info,
   pubkey::Pubkey,
 };
-use std::cell::{RefCell, RefMut};
 use std::mem;
 
 pub struct Processor {}
@@ -50,8 +49,8 @@ impl Processor {
           return Err(AppError::Overflow.into());
         }
         info!(&toggle.to_string());
-        // let mut data = account.try_borrow_mut_data()?;
-        // data = RefCell::new(toggle).borrow_mut();
+        let mut data = account.try_borrow_mut_data()?;
+        data[0] = u8::from(toggle);
         Ok(())
       }
     }
