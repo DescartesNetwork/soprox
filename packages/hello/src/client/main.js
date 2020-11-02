@@ -23,6 +23,7 @@ const main = async () => {
   let toggleState = await reportToggle(registers[1].id, connection);
   await callToggle(!toggleState, registers[1].id, programId, payer, connection);
   const numGreetings = await reportHellos(registers[0].id, connection);
+  console.log(registers[0].id)
   console.log(registers[0].id.toBase58(), 'has been greeted', numGreetings, 'times');
   toggleState = await reportToggle(registers[1].id, connection);
   console.log(registers[1].id.toBase58(), 'is', toggleState, 'in the toggle state');

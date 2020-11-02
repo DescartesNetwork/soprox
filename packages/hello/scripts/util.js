@@ -1,10 +1,12 @@
 const { Account, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
-const { u32, bool } = require('../lib/type');
+const types = require('../lib/type');
 const {
   loadPayerFromStore, savePayerToStore,
   deployProgram, deployRegister,
 } = require('../lib/network');
 const store = require('../lib/store');
+
+const REGISTERS = require('../configs/register.json');
 
 /**
  * Sync sleep
@@ -74,33 +76,33 @@ async function loadProgram(data, payer, connection) {
  */
 loadRegisters = async (payer, programId, connection) => {
   const filename = 'registers';
-  let config = store.load(filename);
-  if (config) return config.map(({ id, name }) => ({ id: new PublicKey(id), name }));
+  const data = store.load(filename);
 
-  // Create the greeted account
-  const numGreets = new u32();
-  const toggleState = new bool();
-  const greeter = await deployRegister(numGreets.space, payer, programId, connection);
-  const toggler = await deployRegister(toggleState.space, payer, programId, connection);
-  [greeter, toggler].forEach(register => console.log('Creating a register:', register.publicKey.toBase58()));
+  const {
+    programAddress,
+    serialization: storedSerialization
+  } = data || {};
+  if (programAddress == programId.toBase58() && storedSerialization)
+    return storedSerialization.map(({ address, name }) => ({ id: new PublicKey(address), name }));
 
-  // Save this info for next time
-  config = [
-    {
-      id: greeter.publicKey.toBase58(),
-      name: 'numGreets',
-      types: 'u32',
-      bytes: numGreets.space
-    },
-    {
-      id: toggler.publicKey.toBase58(),
-      name: 'toggleState',
-      types: 'bool',
-      bytes: toggleState.space
-    }
-  ]
-  store.save(filename, config);
-  return config.map(({ id, name }) => ({ id: new PublicKey(id), name }));
+  const serialization = await Promise.all(REGISTERS.map(async register => {
+    const space = register.serialization.reduce((total, { type }) => {
+      const value = new types[type]();
+      return value.space + total;
+    }, 0);
+    const account = await deployRegister(space, payer, programId, connection);
+    return {
+      address: account.publicKey.toBase58(),
+      name: register.name,
+      space,
+      serialization: register.serialization
+    };
+  }));
+  store.save(filename, {
+    programAddress: programId.toBase58(),
+    serialization
+  });
+  return serialization.map(({ address, name }) => ({ id: new PublicKey(address), name }));
 }
 
 

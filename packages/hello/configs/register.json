@@ -1,0 +1,15 @@
+[
+  {
+    "name": "helloRegister",
+    "serialization": [
+      {
+        "key": "numGreets",
+        "type": "u32"
+      },
+      {
+        "key": "toggleState",
+        "type": "bool"
+      }
+    ]
+  }
+]
