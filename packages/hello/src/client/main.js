@@ -20,9 +20,12 @@ const main = async () => {
   console.log("Let's say hello to a Solana account...");
   const { connection, payer, programId, registers } = await init();
   await sayHello(2, registers[0].id, programId, payer, connection);
-  await callToggle(true, registers[1].id, programId, payer, connection);
-  await reportHellos(registers[0].id, connection);
-  await reportToggle(registers[1].id, connection);
+  let toggleState = await reportToggle(registers[1].id, connection);
+  await callToggle(!toggleState, registers[1].id, programId, payer, connection);
+  const numGreetings = await reportHellos(registers[0].id, connection);
+  console.log(registers[0].id.toBase58(), 'has been greeted', numGreetings, 'times');
+  toggleState = await reportToggle(registers[1].id, connection);
+  console.log(registers[1].id.toBase58(), 'is', toggleState, 'in the toggle state');
   console.log('Success');
 }
 

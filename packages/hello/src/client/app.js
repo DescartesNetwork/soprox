@@ -55,7 +55,7 @@ const reportHellos = async (greeterId, connection) => {
   const accountInfo = await connection.getAccountInfo(greeterId);
   if (!accountInfo) throw new Error('Cannot find the greeter account');
   const info = (new u32()).fromBuffer(accountInfo.data);
-  console.log(greeterId.toBase58(), 'has been greeted', info, 'times');
+  return info;
 }
 
 /**
@@ -65,7 +65,7 @@ const reportToggle = async (togglerId, connection) => {
   const accountInfo = await connection.getAccountInfo(togglerId);
   if (!accountInfo) throw new Error('Cannot find the toggler account');
   const info = (new bool()).fromBuffer(accountInfo.data);
-  console.log(togglerId.toBase58(), 'is', info, 'in the toggle state');
+  return info;
 }
 
 module.exports = { sayHello, callToggle, reportHellos, reportToggle }
