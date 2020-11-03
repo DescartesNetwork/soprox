@@ -1,14 +1,15 @@
 const { sendAndConfirmTransaction, TransactionInstruction, Transaction } = require('@solana/web3.js');
-const { layout, u8, u32, bool } = require('../../lib/type');
+const types = require('../../lib/type');
 
 /**
  * Say hello
  */
-const sayHello = async (amount, greeterId, programId, payer, connection) => {
+const sayHello = async (amount, toggle, greeterId, programId, payer, connection) => {
   console.log('Saying hello to', greeterId.toBase58());
-  const _instruction = new u8(0);
-  const _amount = new u32(amount);
-  const data = layout(_instruction, _amount);
+  const _instruction = new types.u8(0);
+  const _amount = new types.u32(amount);
+  const _toggle = new types.bool(toggle);
+  const data = types.pack(_instruction, _amount, _toggle);
   const instruction = new TransactionInstruction({
     keys: [{ pubkey: greeterId, isSigner: false, isWritable: true }],
     programId,
@@ -25,47 +26,18 @@ const sayHello = async (amount, greeterId, programId, payer, connection) => {
 }
 
 /**
- * Call toggle
- */
-
-const callToggle = async (toggle, togglerId, programId, payer, connection) => {
-  console.log('Calling toggle to', togglerId.toBase58());
-  const _instruction = new u8(1);
-  const _toggle = new bool(toggle);
-  const data = layout(_instruction, _toggle);
-  const instruction = new TransactionInstruction({
-    keys: [{ pubkey: togglerId, isSigner: false, isWritable: true }],
-    programId,
-    data
-  });
-  const transaction = new Transaction();
-  transaction.add(instruction);
-  await sendAndConfirmTransaction(
-    connection, transaction, [payer],
-    {
-      skipPreflight: true,
-      commitment: 'recent',
-    });
-}
-
-/**
  * Report the number of times the greeted account has been said hello to
  */
-const reportHellos = async (greeterId, connection) => {
-  const accountInfo = await connection.getAccountInfo(greeterId);
-  if (!accountInfo) throw new Error('Cannot find the greeter account');
-  const info = (new u32()).fromBuffer(accountInfo.data);
-  return info;
+const reportHello = async (registers, connection) => {
+  return await Promise.all(registers.map(async register => {
+    const { data } = await connection.getAccountInfo(register.id);
+    if (!data) throw new Error('Cannot find data of', register.address);
+    let layout = {};
+    register.serialization.forEach(item => {
+      layout[item.key] = new types[item.type]();
+    });
+    return types.unpack(data, layout);
+  }));
 }
 
-/**
- * Report the toggle state
- */
-const reportToggle = async (togglerId, connection) => {
-  const accountInfo = await connection.getAccountInfo(togglerId);
-  if (!accountInfo) throw new Error('Cannot find the toggler account');
-  const info = (new bool()).fromBuffer(accountInfo.data);
-  return info;
-}
-
-module.exports = { sayHello, callToggle, reportHellos, reportToggle }
+module.exports = { sayHello, reportHello }

@@ -2,7 +2,7 @@
  * Boolean
  */
 class bool {
-  constructor(value) {
+  constructor(value = false) {
     this.value = value;
     this.type = 'bool';
     this.space = 1;
