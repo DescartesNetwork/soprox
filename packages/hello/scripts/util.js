@@ -6,7 +6,7 @@ const {
 } = require('../lib/network');
 const store = require('../lib/store');
 
-const REGISTERS = require('../configs/register.json');
+const REGISTERS = require('../src/configs/register.json');
 
 /**
  * Sync sleep
@@ -80,12 +80,12 @@ loadRegisters = async (payer, programId, connection) => {
 
   const {
     programAddress,
-    serialization: storedSerialization
+    schema: storedSchema
   } = data || {};
-  if (programAddress == programId.toBase58() && storedSerialization)
-    return storedSerialization.map(({ address, name }) => ({ id: new PublicKey(address), name }));
+  if (programAddress == programId.toBase58() && storedSchema)
+    return storedSchema.map(({ address, name }) => ({ id: new PublicKey(address), name }));
 
-  const serialization = await Promise.all(REGISTERS.map(async register => {
+  const schema = await Promise.all(REGISTERS.map(async register => {
     const space = register.serialization.reduce((total, { type }) => {
       const value = new types[type]();
       return value.space + total;
@@ -100,9 +100,9 @@ loadRegisters = async (payer, programId, connection) => {
   }));
   store.save(filename, {
     programAddress: programId.toBase58(),
-    serialization
+    schema
   });
-  return serialization.map(({ address, name }) => ({ id: new PublicKey(address), name }));
+  return schema.map(({ address, name }) => ({ id: new PublicKey(address), name }));
 }
 
 

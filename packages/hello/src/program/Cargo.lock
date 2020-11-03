@@ -1518,6 +1518,7 @@ dependencies = [
 name = "soprox"
 version = "0.0.1"
 dependencies = [
+ "arrayref",
  "byteorder",
  "num-derive",
  "num-traits",
