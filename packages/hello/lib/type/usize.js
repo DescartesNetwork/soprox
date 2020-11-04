@@ -1,4 +1,37 @@
 /**
+ * Supportive functions
+ */
+const type2Write = (type) => {
+  switch (type) {
+    case 'u8':
+      return 'writeUInt8';
+    case 'u16':
+      return 'writeUInt16LE';
+    case 'u32':
+      return 'writeUInt32LE';
+    case 'u64':
+      return 'writeBigUInt64LE';
+    default:
+      throw new Error('Invalid type');
+  }
+}
+
+const type2Read = (type) => {
+  switch (type) {
+    case 'u8':
+      return 'readUInt8';
+    case 'u16':
+      return 'readUInt16LE';
+    case 'u32':
+      return 'readUInt32LE';
+    case 'u64':
+      return 'readBigUInt64LE';
+    default:
+      throw new Error('Invalid type');
+  }
+}
+
+/**
  * Unsigned integer
  */
 class usize {
@@ -10,13 +43,13 @@ class usize {
 
   toBuffer = () => {
     const buf = Buffer.allocUnsafe(this.space);
-    buf.writeUIntLE(this.value, 0, this.space);
+    buf[type2Write(this.type)](this.value);
     return buf;
   }
 
   fromBuffer = (buf) => {
     if (!Buffer.isBuffer(buf)) throw new Error('Invalid buffer');
-    this.value = buf.readUIntLE(0, this.space);
+    this.value = buf[type2Read(this.type)]();
     return this.value;
   }
 }
