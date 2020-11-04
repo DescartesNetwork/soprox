@@ -1,7 +1,7 @@
 #![cfg(feature = "program")]
 
 use crate::error::AppError;
-use solana_sdk::program_error::ProgramError;
+use solana_sdk::{info, program_error::ProgramError};
 use std::convert::TryInto;
 
 #[repr(C)]
@@ -21,9 +21,9 @@ impl AppInstruction {
           .and_then(|slice| slice.try_into().ok())
           .map(u32::from_le_bytes)
           .ok_or(AppError::InvalidInstruction)?;
-        let toggle = match rest.get(0).ok_or(AppError::InvalidInstruction)? {
-          0 => false,
-          1 => true,
+        let toggle = match rest.get(4..5).ok_or(AppError::InvalidInstruction)? {
+          [0] => false,
+          [1] => true,
           _ => return Err(ProgramError::InvalidAccountData),
         };
         Self::SayHello { amount, toggle }

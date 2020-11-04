@@ -32,7 +32,6 @@ class tuple {
 
   toBuffer = () => {
     const eleBufs = this._primaryTypes.map((type, i) => new types[type](this.value[i]));
-    console.log(eleBufs.map(type => type.toBuffer()))
     return types.pack(...eleBufs);
   }
 
