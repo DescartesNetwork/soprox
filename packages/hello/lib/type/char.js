@@ -9,14 +9,15 @@ class char {
   }
 
   toBuffer = () => {
-    const buf = Buffer.allocUnsafe(this.space);
-    buf.writeUIntLE(this.value, 0, this.space);
+    const buf = Buffer.from(this.value, 'utf8');
+    if (buf.length > this.space) throw new Error('Invalid char');
+    if (buf.length < this.space) return Buffer.concat([buf, Buffer.alloc(this.space - buf.length)]);
     return buf;
   }
 
   fromBuffer = (buf) => {
-    buf = Buffer.from(buf);
-    this.value = buf.readUIntLE(0, this.space);
+    if (!Buffer.isBuffer(buf)) throw new Error('Invalid buffer');
+    this.value = buf.toString('utf8');
     return this.value;
   }
 }

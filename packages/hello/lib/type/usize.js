@@ -15,7 +15,7 @@ class usize {
   }
 
   fromBuffer = (buf) => {
-    buf = Buffer.from(buf);
+    if (!Buffer.isBuffer(buf)) throw new Error('Invalid buffer');
     this.value = buf.readUIntLE(0, this.space);
     return this.value;
   }

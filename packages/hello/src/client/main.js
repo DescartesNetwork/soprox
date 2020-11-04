@@ -26,7 +26,7 @@ const main = async () => {
   [{ numGreets, toggleState }] = await reportHello(registers, connection);
   console.log('New number of hellos:', numGreets);
   console.log('New toggle state:', toggleState);
-  // console.log('Success');
+  console.log('Success');
 }
 
 try { main() } catch (er) { console.error(er) }
