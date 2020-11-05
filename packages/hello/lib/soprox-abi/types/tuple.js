@@ -1,4 +1,8 @@
-const types = require('./index');
+const bool = require('./bool');
+const char = require('./char');
+const usize = require('./usize');
+const isize = require('./isize');
+const types = { ...bool, ...char, ...usize, ...isize };
 
 /**
  * Tuple

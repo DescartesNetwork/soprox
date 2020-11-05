@@ -1,4 +1,8 @@
-const types = require('./index');
+const bool = require('./bool');
+const char = require('./char');
+const usize = require('./usize');
+const isize = require('./isize');
+const types = { ...bool, ...char, ...usize, ...isize };
 
 /**
  * Array
@@ -26,7 +30,7 @@ class array {
     if (!types[primaryType]) throw new Error('Invalid type array');
     try { len = parseInt(len) } catch (er) { len = 0 }
     if (len <= 0) throw new Error('Invalid type array');
-    const space = (new types[this._primaryType]).space * len;
+    const space = (new types[primaryType]).space * len;
     return { primaryType, space }
   }
 

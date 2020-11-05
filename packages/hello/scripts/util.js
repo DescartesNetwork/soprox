@@ -1,5 +1,5 @@
 const { Account, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
-const types = require('../lib/type');
+const soproxABI = require('../lib/soprox-abi');
 const {
   loadPayerFromStore, savePayerToStore,
   deployProgram, deployRegister,
@@ -75,7 +75,7 @@ async function loadProgram(data, payer, connection) {
  * Load registers
  */
 loadRegisters = async (payer, programId, connection) => {
-  const filename = 'registers';
+  const filename = 'abi';
   const data = store.load(filename);
 
   const {
@@ -86,10 +86,7 @@ loadRegisters = async (payer, programId, connection) => {
     return storedSchema.map(({ address, name }) => ({ id: new PublicKey(address), name }));
 
   const schema = await Promise.all(REGISTERS.map(async register => {
-    const space = register.serialization.reduce((total, { type }) => {
-      const value = new types[type]();
-      return value.space + total;
-    }, 0);
+    const space = soproxABI.span(register.serialization);
     const account = await deployRegister(space, payer, programId, connection);
     return {
       address: account.publicKey.toBase58(),
@@ -98,11 +95,13 @@ loadRegisters = async (payer, programId, connection) => {
       serialization: register.serialization
     };
   }));
-  store.save(filename, {
-    programAddress: programId.toBase58(),
-    schema
-  });
-  return schema.map(({ address, name }) => ({ id: new PublicKey(address), name }));
+  console.log(schema[0].space)
+  // store.save(filename, {
+  //   programAddress: programId.toBase58(),
+  //   schema
+  // });
+  // return schema.map(({ address, name }) => ({ id: new PublicKey(address), name }));
+  return [];
 }
 
 
