@@ -1,21 +1,5 @@
 const types = require('./types');
-
-const pack = (...items) => {
-  return Buffer.concat(items.map(type => type.toBuffer()));
-}
-
-const unpack = (data, layout) => {
-  let re = {};
-  let offset = 0;
-  Object.keys(layout).forEach(key => {
-    const item = layout[key];
-    const buffer = data.slice(offset, offset + item.space);
-    item.fromBuffer(buffer);
-    re[key] = item.value;
-    offset += item.space;
-  });
-  return re;
-}
+const serialization = require('./serialization');
 
 const create = (type) => {
   if (types[type]) return new types[type]();
@@ -26,12 +10,12 @@ const create = (type) => {
   throw new Error('Invalid type');
 }
 
-const span = (serialization) => {
-  return serialization.reduce((total, { type, serialization: nestedSerialization }) => {
-    if (!type) return span(nestedSerialization) + total;
-    const value = create(type);
-    return value.space + total;
+const span = (register) => {
+  const { type, serialization } = register;
+  if (type) return create(type).space;
+  return serialization.reduce((total, nestedRegister) => {
+    return span(nestedRegister) + total;
   }, 0);
 }
 
-module.exports = { types, pack, unpack, create, span };
+module.exports = { types, ...serialization, create, span };

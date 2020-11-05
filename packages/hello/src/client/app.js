@@ -1,15 +1,15 @@
 const { sendAndConfirmTransaction, TransactionInstruction, Transaction } = require('@solana/web3.js');
-const types = require('../../lib/type');
+const soproxABI = require('../../lib/soprox-abi');
 
 /**
  * Say hello
  */
 const sayHello = async (amount, toggle, greeterId, programId, payer, connection) => {
   console.log('Saying hello to', greeterId.toBase58());
-  const _instruction = new types.u8(0);
-  const _amount = new types.u32(amount);
-  const _toggle = new types.bool(toggle);
-  const data = types.pack(_instruction, _amount, _toggle);
+  const _instruction = new soproxABI.u8(0);
+  const _amount = new soproxABI.u32(amount);
+  const _toggle = new soproxABI.bool(toggle);
+  const data = soproxABI.pack(_instruction, _amount, _toggle);
   const instruction = new TransactionInstruction({
     keys: [{ pubkey: greeterId, isSigner: false, isWritable: true }],
     programId,
@@ -34,9 +34,9 @@ const reportHello = async (registers, connection) => {
     if (!data) throw new Error('Cannot find data of', register.address);
     let layout = {};
     register.serialization.forEach(item => {
-      layout[item.key] = new types[item.type]();
+      layout[item.key] = new soproxABI[item.type]();
     });
-    return types.unpack(data, layout);
+    return soproxABI.unpack(data, layout);
   }));
 }
 

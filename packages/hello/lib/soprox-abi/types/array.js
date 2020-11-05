@@ -3,6 +3,7 @@ const char = require('./char');
 const usize = require('./usize');
 const isize = require('./isize');
 const types = { ...bool, ...char, ...usize, ...isize };
+const serialization = require('../serialization');
 
 /**
  * Array
@@ -36,7 +37,7 @@ class array {
 
   toBuffer = () => {
     const eleBufs = this.value.map(item => new types[this._primaryType](item));
-    return types.pack(...eleBufs);
+    return serialization.pack(...eleBufs);
   }
 
   fromBuffer = (buf) => {

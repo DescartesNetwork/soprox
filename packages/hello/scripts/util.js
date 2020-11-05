@@ -86,7 +86,7 @@ loadRegisters = async (payer, programId, connection) => {
     return storedSchema.map(({ address, name }) => ({ id: new PublicKey(address), name }));
 
   const schema = await Promise.all(REGISTERS.map(async register => {
-    const space = soproxABI.span(register.serialization);
+    const space = soproxABI.span(register);
     const account = await deployRegister(space, payer, programId, connection);
     return {
       address: account.publicKey.toBase58(),
@@ -95,13 +95,11 @@ loadRegisters = async (payer, programId, connection) => {
       serialization: register.serialization
     };
   }));
-  console.log(schema[0].space)
-  // store.save(filename, {
-  //   programAddress: programId.toBase58(),
-  //   schema
-  // });
-  // return schema.map(({ address, name }) => ({ id: new PublicKey(address), name }));
-  return [];
+  store.save(filename, {
+    programAddress: programId.toBase58(),
+    schema
+  });
+  return schema.map(({ address, name }) => ({ id: new PublicKey(address), name }));
 }
 
 
