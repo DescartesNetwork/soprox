@@ -20,7 +20,6 @@
       },
       {
         "key": "structure",
-        "type": "struct",
         "serialization": [
           {
             "key": "1",

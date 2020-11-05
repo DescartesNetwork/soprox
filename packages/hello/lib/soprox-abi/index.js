@@ -28,8 +28,7 @@ const create = (type) => {
 
 const span = (serialization) => {
   return serialization.reduce((total, { type, serialization: nestedSerialization }) => {
-    console.log(type)
-    if (type === 'struct') return span(nestedSerialization) + total;
+    if (!type) return span(nestedSerialization) + total;
     const value = create(type);
     return value.space + total;
   }, 0);
