@@ -5,7 +5,7 @@
   "main": "index.js",
   "testnetDefaultChannel": "v1.3.12",
   "scripts": {
-    "start": "node src/client/main.js",
+    "start": "node src/client/index.js",
     "build": "./src/program/do.sh build",
     "deploy": "node ./scripts/index.js",
     "clean": "./src/program/do.sh clean && rm -rf ./dist && npm run clean:store",
