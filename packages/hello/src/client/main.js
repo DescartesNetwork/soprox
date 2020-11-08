@@ -8,7 +8,7 @@ const init = async () => {
   const connection = await establishConnection();
   const payer = loadPayerFromStore();
   const program = store.load('program');
-  const programId = new PublicKey(program.id);
+  const programId = new PublicKey(program.address);
   const registers = store.load('abi').schema.map(register => {
     register.id = new PublicKey(register.address);
     return register;
