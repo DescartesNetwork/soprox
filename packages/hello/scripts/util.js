@@ -65,7 +65,7 @@ async function loadProgram(data, payer, connection) {
   // Save this info for next time
   store.save(filename, {
     id: adress,
-    name: 'hello',
+    key: 'hello',
     data: Buffer.from(data).toString('hex')
   });
   return program.publicKey;
@@ -78,28 +78,25 @@ loadRegisters = async (payer, programId, connection) => {
   const filename = 'abi';
   const data = store.load(filename);
 
-  const {
-    programAddress,
-    schema: storedSchema
-  } = data || {};
+  const { programAddress, schema: storedSchema } = data || {};
   if (programAddress == programId.toBase58() && storedSchema)
-    return storedSchema.map(({ address, name }) => ({ id: new PublicKey(address), name }));
+    return storedSchema.map(({ address, key }) => ({ id: new PublicKey(address), key }));
 
   const schema = await Promise.all(REGISTERS.map(async register => {
     const space = soproxABI.span(register);
     const account = await deployRegister(space, payer, programId, connection);
     return {
       address: account.publicKey.toBase58(),
-      name: register.name,
+      key: register.key,
       space,
-      serialization: register.serialization
+      schema: register.schema
     };
   }));
   store.save(filename, {
     programAddress: programId.toBase58(),
     schema
   });
-  return schema.map(({ address, name }) => ({ id: new PublicKey(address), name }));
+  return schema.map(({ address, key }) => ({ id: new PublicKey(address), key }));
 }
 
 

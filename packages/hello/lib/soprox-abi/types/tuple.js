@@ -3,7 +3,7 @@ const char = require('./char');
 const usize = require('./usize');
 const isize = require('./isize');
 const types = { ...bool, ...char, ...usize, ...isize };
-const serialization = require('../serialization');
+const util = require('../util');
 
 /**
  * Tuple
@@ -37,7 +37,7 @@ class tuple {
 
   toBuffer = () => {
     const eleBufs = this._primaryTypes.map((type, i) => new types[type](this.value[i]));
-    return serialization.pack(...eleBufs);
+    return util.pack(...eleBufs);
   }
 
   fromBuffer = (buf) => {

@@ -9,7 +9,7 @@ const init = async () => {
   const payer = loadPayerFromStore();
   const program = store.load('program');
   const programId = new PublicKey(program.id);
-  const registers = store.load('registers').schema.map(register => {
+  const registers = store.load('abi').schema.map(register => {
     register.id = new PublicKey(register.address);
     return register;
   });
@@ -18,14 +18,12 @@ const init = async () => {
 
 const main = async () => {
   console.log("Let's say hello to a Solana account...");
-  const { connection, payer, programId, registers } = await init();
-  let [{ numGreets, toggleState }] = await reportHello(registers, connection);
-  console.log('Current number of hellos:', numGreets);
-  console.log('Current toggle state:', toggleState);
-  await sayHello(1, !toggleState, registers[0].id, programId, payer, connection);
-  [{ numGreets, toggleState }] = await reportHello(registers, connection);
-  console.log('New number of hellos:', numGreets);
-  console.log('New toggle state:', toggleState);
+  const { connection, payer, programId, registers: [register] } = await init();
+  let data = await reportHello(register, connection);
+  console.log('Current data:', data);
+  await sayHello(1, !data.toggleState, register, programId, payer, connection);
+  data = await reportHello(register, connection);
+  console.log('New data:', data);
   console.log('Success');
 }
 

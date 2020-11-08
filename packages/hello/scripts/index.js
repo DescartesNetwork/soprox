@@ -12,7 +12,7 @@ const data = fs.readFileSync(pathToProgram);
   const registers = await loadRegisters(payer, programId, connection)
   console.log('Deployment Info:');
   console.log('\tProgram:', programId.toBase58());
-  registers.forEach(({ id, name }) =>
-    console.log(`\tRegister \'${name}\': ${id.toBase58()}`)
+  registers.forEach(({ id, key }) =>
+    console.log(`\tRegister \'${key}\': ${id.toBase58()}`)
   );
 })();
