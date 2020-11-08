@@ -69,7 +69,6 @@ async function loadProgram(data, payer, connection) {
   // Save this info for next time
   let program = {
     address,
-    key: 'hello',
     data: Buffer.from(data).toString('hex')
   }
   store.save(filename, program);
