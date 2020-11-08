@@ -6,8 +6,6 @@ const {
 } = require('../lib/network');
 const store = require('../lib/store');
 
-const REGISTERS = require('../src/configs/schema.json');
-
 /**
  * Sync sleep
  */
@@ -79,28 +77,28 @@ async function loadProgram(data, payer, connection) {
 /**
  * Load registers
  */
-loadRegisters = async (payer, program, connection) => {
+loadRegisters = async (schema, payer, program, connection) => {
   const filename = 'abi';
   const data = store.load(filename);
 
   const { programAddress, schema: storedSchema } = data || {};
   if (programAddress == program.address && storedSchema)
     return storedSchema.map(register => {
-      register.id = new PublicKey(address);
+      register.id = new PublicKey(program.address);
       return register;
     });
 
-  const schema = await Promise.all(REGISTERS.map(async register => {
-    const space = soproxABI.span(register);
+  const layout = await Promise.all(schema.map(async each => {
+    const space = soproxABI.span(each);
     const account = await deployRegister(space, payer, program.id, connection);
-    register.address = account.publicKey.toBase58();
-    return register;
+    each.address = account.publicKey.toBase58();
+    return each;
   }));
   store.save(filename, {
     programAddress: program.address,
-    schema
+    schema: layout
   });
-  return schema.map(register => {
+  return layout.map(register => {
     register.id = new PublicKey(register.address);
     return register;
   });

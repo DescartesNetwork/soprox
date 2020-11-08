@@ -52,15 +52,15 @@ module.exports = {
   /**
    * Deploy a register to the cluster
    */
-  deployRegister: async (bytes, payer, programId, connection) => {
+  deployRegister: async (space, payer, programId, connection) => {
     const register = new Account();
     let transaction = new Transaction();
-    const lamports = await connection.getMinimumBalanceForRentExemption(bytes);
+    const lamports = await connection.getMinimumBalanceForRentExemption(space);
     transaction.add(SystemProgram.createAccount({
       fromPubkey: payer.publicKey,
       newAccountPubkey: register.publicKey,
       lamports,
-      space: bytes,
+      space,
       programId,
     }));
     await sendAndConfirmTransaction(
