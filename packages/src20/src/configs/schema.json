@@ -1,0 +1,15 @@
+[
+  {
+    "key": "account",
+    "schema": [
+      {
+        "key": "owner",
+        "type": "pub"
+      },
+      {
+        "key": "amount",
+        "type": "u64"
+      }
+    ]
+  }
+]
