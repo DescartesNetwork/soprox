@@ -31,7 +31,7 @@ module.exports = {
   savePayerToStore: (payer) => {
     store.save('payer', {
       address: payer.publicKey.toBase58(),
-      privateKey: Buffer.from(payer.secretKey).toString('hex')
+      secretKey: Buffer.from(payer.secretKey).toString('hex')
     });
   },
 
