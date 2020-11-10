@@ -40,7 +40,7 @@ const sayHello = async (amount, toggle, register, programId, payer, connection) 
 const reportHello = async (register, connection) => {
   const { data } = await connection.getAccountInfo(register.id);
   if (!data) throw new Error('Cannot find data of', register.address);
-  let layout = new soproxABI.struct(register.schema);
+  const layout = new soproxABI.struct(register.schema);
   layout.fromBuffer(data);
   return layout.value;
 }
