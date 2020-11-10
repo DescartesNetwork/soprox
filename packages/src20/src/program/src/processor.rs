@@ -10,7 +10,6 @@ use solana_sdk::{
   program_pack::Pack,
   pubkey::Pubkey,
 };
-use std::mem;
 
 pub struct Processor {}
 
@@ -33,11 +32,20 @@ impl Processor {
         if dst_acc.owner != program_id {
           return Err(AppError::IncorrectProgramId.into());
         }
-        info!(&amount.to_string());
-        // let mut data = Dummy::unpack(&account.data.borrow())?;
-        // data.amount += amount;
-        // data.toggle = toggle;
-        // Dummy::pack(data, &mut account.data.borrow_mut())?;
+        // From
+        let mut src_data = Account::unpack(&src_acc.data.borrow())?;
+        src_data.amount = src_data
+          .amount
+          .checked_add(amount)
+          .ok_or(AppError::Overflow)?;
+        Account::pack(src_data, &mut src_acc.data.borrow_mut())?;
+        // To
+        let mut dst_data = Account::unpack(&dst_acc.data.borrow())?;
+        dst_data.amount = dst_data
+          .amount
+          .checked_add(amount)
+          .ok_or(AppError::Overflow)?;
+        Account::pack(dst_data, &mut dst_acc.data.borrow_mut())?;
         Ok(())
       }
     }

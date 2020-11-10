@@ -11,21 +11,24 @@ const store = require('../../lib/store');
 /**
  * Transfer
  */
-const transfer = async (owner, amount, register, programId, payer, connection) => {
+const transfer = async (amount, register, programId, payer, connection) => {
   console.log('Transfer', amount, 'TOKEN to', register.id.toBase58());
-  const layout = new soproxABI.struct(register.schema, {
-    owner,
+  const schema = [
+    { key: 'code', type: 'u8' },
+    { key: 'amount', type: 'u64' }
+  ];
+  const layout = new soproxABI.struct(schema, {
+    code: 3,
     amount,
   });
-  const code = new soproxABI.u8(3);
-  const data = soproxABI.pack(code, layout);
   const instruction = new TransactionInstruction({
     keys: [
       { pubkey: register.id, isSigner: false, isWritable: true },
       { pubkey: register.id, isSigner: false, isWritable: true },
+      { pubkey: register.id, isSigner: false, isWritable: true },
     ],
     programId,
-    data
+    data: layout.toBuffer()
   });
   const transaction = new Transaction();
   transaction.add(instruction);
@@ -38,9 +41,9 @@ const transfer = async (owner, amount, register, programId, payer, connection) =
 }
 
 /**
- * Report balance
+ * Account info
  */
-const balance = async (register, connection) => {
+const info = async (register, connection) => {
   const { data } = await connection.getAccountInfo(register.id);
   if (!data) throw new Error('Cannot find data of', register.address);
   const layout = new soproxABI.struct(register.schema);
@@ -62,10 +65,10 @@ const init = async () => {
 
 const main = async () => {
   const { connection, payer, programId, registers: [register] } = await init();
-  let data = await balance(register, connection);
+  let data = await info(register, connection);
   console.log('Current data:', data);
-  await transfer(data.owner, 1n, register, programId, payer, connection);
-  data = await balance(register, connection);
+  await transfer(1000n, register, programId, payer, connection);
+  data = await info(register, connection);
   console.log('New data:', data);
   console.log('Success');
 }
