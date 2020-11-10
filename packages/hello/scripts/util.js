@@ -1,5 +1,5 @@
 const { Account, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
-const soproxABI = require('../lib/soprox-abi');
+const soproxABI = require('soprox-abi');
 const {
   loadPayerFromStore, savePayerToStore,
   deployProgram, deployRegister,

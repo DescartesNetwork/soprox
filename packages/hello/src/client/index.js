@@ -4,7 +4,7 @@ const {
   Transaction,
   PublicKey
 } = require('@solana/web3.js');
-const soproxABI = require('../../lib/soprox-abi');
+const soproxABI = require('soprox-abi');
 const { establishConnection, loadPayerFromStore } = require('../../lib/network');
 const store = require('../../lib/store');
 
