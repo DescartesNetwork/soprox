@@ -12,7 +12,7 @@ const store = require('../../lib/store');
  * Say hello
  */
 const sayHello = async (amount, toggle, register, programId, payer, connection) => {
-  console.log('Saying hello to', register.id.toBase58());
+  console.log('Saying hello to', register.publicKey.toBase58());
   const layout = new soproxABI.struct(register.schema, {
     numGreets: amount,
     toggleState: toggle
@@ -20,7 +20,7 @@ const sayHello = async (amount, toggle, register, programId, payer, connection) 
   const code = new soproxABI.u8(0);
   const data = soproxABI.pack(code, layout);
   const instruction = new TransactionInstruction({
-    keys: [{ pubkey: register.id, isSigner: false, isWritable: true }],
+    keys: [{ pubkey: register.publicKey, isSigner: false, isWritable: true }],
     programId,
     data
   });
@@ -38,7 +38,7 @@ const sayHello = async (amount, toggle, register, programId, payer, connection) 
  * Report the number of times the greeted account has been said hello to
  */
 const reportHello = async (register, connection) => {
-  const { data } = await connection.getAccountInfo(register.id);
+  const { data } = await connection.getAccountInfo(register.publicKey);
   if (!data) throw new Error('Cannot find data of', register.address);
   const layout = new soproxABI.struct(register.schema);
   layout.fromBuffer(data);
@@ -51,7 +51,7 @@ const init = async () => {
   const program = store.load('program');
   const programId = new PublicKey(program.address);
   const registers = store.load('abi').schema.map(register => {
-    register.id = new PublicKey(register.address);
+    register.publicKey = new PublicKey(register.address);
     return register;
   });
   return { connection, payer, programId, registers }

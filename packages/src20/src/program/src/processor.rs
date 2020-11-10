@@ -21,6 +21,11 @@ impl Processor {
   ) -> ProgramResult {
     let instruction = AppInstruction::unpack(instruction_data)?;
     match instruction {
+      AppInstruction::TransferOwnership { new_owner } => {
+        info!("Calling TransferOwnership function");
+        info!(&new_owner.to_string());
+        Ok(())
+      }
       AppInstruction::Transfer { amount } => {
         info!("Calling Transfer function");
 
@@ -41,7 +46,13 @@ impl Processor {
         let mut dst_data = Account::unpack(&dst_acc.data.borrow())?;
 
         // Verify source owner
-        info!(&src_data.owner.to_string());
+        info!(&signer.key.to_string());
+        info!(&src_acc.owner.to_string());
+        if signer.key == src_acc.owner {
+          info!("Same owner");
+        } else {
+          info!("Different owner");
+        }
 
         // From
         src_data.amount = src_data

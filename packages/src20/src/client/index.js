@@ -2,17 +2,50 @@ const {
   sendAndConfirmTransaction,
   TransactionInstruction,
   Transaction,
-  PublicKey
+  PublicKey,
+  Account,
 } = require('@solana/web3.js');
 const soproxABI = require('soprox-abi');
 const { establishConnection, loadPayerFromStore } = require('../../lib/network');
 const store = require('../../lib/store');
 
 /**
+ * Transfer ownership
+ */
+const transferOwnership = async (newOnwer, register, programId, connection) => {
+  console.log('TransferOnwership to', newOnwer.toBase58(), 'of', register.publicKey.toBase58());
+  const schema = [
+    { key: 'code', type: 'u8' },
+    { key: 'newOnwer', type: 'pub' }
+  ];
+  const layout = new soproxABI.struct(schema, {
+    code: 0,
+    newOnwer: newOnwer.toBase58(),
+  });
+  const instruction = new TransactionInstruction({
+    keys: [
+      { pubkey: register.publicKey, isSigner: true, isWritable: true },
+    ],
+    programId,
+    data: layout.toBuffer()
+  });
+  const transaction = new Transaction();
+  transaction.add(instruction);
+  const payer = new Account(Buffer.from(register.secretKey, 'hex'));
+  await sendAndConfirmTransaction(
+    connection, transaction, [payer],
+    {
+      skipPreflight: true,
+      commitment: 'recent',
+    });
+}
+
+
+/**
  * Transfer
  */
 const transfer = async (amount, register, programId, payer, connection) => {
-  console.log('Transfer', amount, 'TOKEN to', register.id.toBase58());
+  console.log('Transfer', amount, 'TOKEN to', register.publicKey.toBase58());
   const schema = [
     { key: 'code', type: 'u8' },
     { key: 'amount', type: 'u64' }
@@ -24,8 +57,8 @@ const transfer = async (amount, register, programId, payer, connection) => {
   const instruction = new TransactionInstruction({
     keys: [
       { pubkey: payer.publicKey, isSigner: true, isWritable: false },
-      { pubkey: register.id, isSigner: false, isWritable: true },
-      { pubkey: register.id, isSigner: false, isWritable: true },
+      { pubkey: register.publicKey, isSigner: false, isWritable: true },
+      { pubkey: register.publicKey, isSigner: false, isWritable: true },
     ],
     programId,
     data: layout.toBuffer()
@@ -44,7 +77,7 @@ const transfer = async (amount, register, programId, payer, connection) => {
  * Account info
  */
 const info = async (register, connection) => {
-  const { data } = await connection.getAccountInfo(register.id);
+  const { data } = await connection.getAccountInfo(register.publicKey);
   if (!data) throw new Error('Cannot find data of', register.address);
   const layout = new soproxABI.struct(register.schema);
   layout.fromBuffer(data);
@@ -57,7 +90,7 @@ const init = async () => {
   const program = store.load('program');
   const programId = new PublicKey(program.address);
   const registers = store.load('abi').schema.map(register => {
-    register.id = new PublicKey(register.address);
+    register.publicKey = new PublicKey(register.address);
     return register;
   });
   return { connection, payer, programId, registers }
@@ -67,6 +100,7 @@ const main = async () => {
   const { connection, payer, programId, registers: [register] } = await init();
   let data = await info(register, connection);
   console.log('Current data:', data);
+  await transferOwnership(payer.publicKey, register, programId, connection)
   await transfer(1000n, register, programId, payer, connection);
   data = await info(register, connection);
   console.log('New data:', data);

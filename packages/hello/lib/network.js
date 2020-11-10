@@ -24,8 +24,9 @@ module.exports = {
   loadPayerFromStore: () => {
     const data = store.load('payer');
     if (!data) return null;
-    const { privateKey } = data;
-    return new Account(Buffer.from(privateKey, 'hex'));
+    const { secretKey } = data;
+    const payer = new Account(Buffer.from(secretKey, 'hex'));
+    return payer;
   },
   savePayerToStore: (payer) => {
     store.save('payer', {

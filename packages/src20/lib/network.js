@@ -24,13 +24,14 @@ module.exports = {
   loadPayerFromStore: () => {
     const data = store.load('payer');
     if (!data) return null;
-    const { privateKey } = data;
-    return new Account(Buffer.from(privateKey, 'hex'));
+    const { secretKey } = data;
+    const payer = new Account(Buffer.from(secretKey, 'hex'));
+    return payer;
   },
   savePayerToStore: (payer) => {
     store.save('payer', {
       address: payer.publicKey.toBase58(),
-      privateKey: Buffer.from(payer.secretKey).toString('hex')
+      secretKey: Buffer.from(payer.secretKey).toString('hex')
     });
   },
 
