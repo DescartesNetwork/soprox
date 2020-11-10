@@ -23,7 +23,10 @@ impl Processor {
     match instruction {
       AppInstruction::Transfer { amount } => {
         info!("Calling Transfer function");
+
+        // Extract accounts: signer, source, destination
         let accounts_iter = &mut accounts.iter();
+        let signer = next_account_info(accounts_iter)?;
         let src_acc = next_account_info(accounts_iter)?;
         if src_acc.owner != program_id {
           return Err(AppError::IncorrectProgramId.into());
@@ -32,15 +35,21 @@ impl Processor {
         if dst_acc.owner != program_id {
           return Err(AppError::IncorrectProgramId.into());
         }
-        // From
+
+        // Extract accounts data
         let mut src_data = Account::unpack(&src_acc.data.borrow())?;
+        let mut dst_data = Account::unpack(&dst_acc.data.borrow())?;
+
+        // Verify source owner
+        info!(&src_data.owner.to_string());
+
+        // From
         src_data.amount = src_data
           .amount
           .checked_add(amount)
           .ok_or(AppError::Overflow)?;
         Account::pack(src_data, &mut src_acc.data.borrow_mut())?;
         // To
-        let mut dst_data = Account::unpack(&dst_acc.data.borrow())?;
         dst_data.amount = dst_data
           .amount
           .checked_add(amount)

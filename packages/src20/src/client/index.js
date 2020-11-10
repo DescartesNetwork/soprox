@@ -23,7 +23,7 @@ const transfer = async (amount, register, programId, payer, connection) => {
   });
   const instruction = new TransactionInstruction({
     keys: [
-      { pubkey: register.id, isSigner: false, isWritable: true },
+      { pubkey: payer.publicKey, isSigner: true, isWritable: false },
       { pubkey: register.id, isSigner: false, isWritable: true },
       { pubkey: register.id, isSigner: false, isWritable: true },
     ],
