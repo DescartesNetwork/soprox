@@ -4,23 +4,25 @@ const {
   Transaction,
   PublicKey,
   Account,
+  LAMPORTS_PER_SOL,
 } = require('@solana/web3.js');
 const soproxABI = require('soprox-abi');
 const { establishConnection, loadPayerFromStore } = require('../../lib/network');
 const store = require('../../lib/store');
 
+
 /**
  * Transfer ownership
  */
-const transferOwnership = async (newOnwer, register, programId, connection) => {
-  console.log('TransferOnwership to', newOnwer.toBase58(), 'of', register.publicKey.toBase58());
+const transferOwnership = async (newOwner, register, programId, payer, connection) => {
+  console.log('TransferOnwership to', newOwner.toBase58(), 'of', register.publicKey.toBase58());
   const schema = [
     { key: 'code', type: 'u8' },
-    { key: 'newOnwer', type: 'pub' }
+    { key: 'newOwner', type: 'pub' }
   ];
   const layout = new soproxABI.struct(schema, {
     code: 0,
-    newOnwer: newOnwer.toBase58(),
+    newOwner: newOwner.toBase58(),
   });
   const instruction = new TransactionInstruction({
     keys: [
@@ -31,9 +33,9 @@ const transferOwnership = async (newOnwer, register, programId, connection) => {
   });
   const transaction = new Transaction();
   transaction.add(instruction);
-  const payer = new Account(Buffer.from(register.secretKey, 'hex'));
+  const signer = new Account(Buffer.from(register.secretKey, 'hex'));
   await sendAndConfirmTransaction(
-    connection, transaction, [payer],
+    connection, transaction, [payer, signer],
     {
       skipPreflight: true,
       commitment: 'recent',
@@ -100,7 +102,7 @@ const main = async () => {
   const { connection, payer, programId, registers: [register] } = await init();
   let data = await info(register, connection);
   console.log('Current data:', data);
-  await transferOwnership(payer.publicKey, register, programId, connection)
+  await transferOwnership(payer.publicKey, register, programId, payer, connection);
   await transfer(1000n, register, programId, payer, connection);
   data = await info(register, connection);
   console.log('New data:', data);

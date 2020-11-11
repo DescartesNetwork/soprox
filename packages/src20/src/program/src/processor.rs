@@ -23,12 +23,24 @@ impl Processor {
     match instruction {
       AppInstruction::TransferOwnership { new_owner } => {
         info!("Calling TransferOwnership function");
-        info!(&new_owner.to_string());
+        let accounts_iter = &mut accounts.iter();
+        // Extract account
+        let acc = next_account_info(accounts_iter)?;
+        if acc.owner != program_id {
+          return Err(AppError::IncorrectProgramId.into());
+        }
+        // Verify owner & signer
+        if !acc.is_signer {
+          return Err(AppError::InvalidOwner.into());
+        }
+        // Extract and change account data
+        let mut data = Account::unpack(&acc.data.borrow())?;
+        data.owner = new_owner;
+        Account::pack(data, &mut acc.data.borrow_mut())?;
         Ok(())
       }
       AppInstruction::Transfer { amount } => {
         info!("Calling Transfer function");
-
         // Extract accounts: signer, source, destination
         let accounts_iter = &mut accounts.iter();
         let signer = next_account_info(accounts_iter)?;
@@ -40,24 +52,17 @@ impl Processor {
         if dst_acc.owner != program_id {
           return Err(AppError::IncorrectProgramId.into());
         }
-
         // Extract accounts data
         let mut src_data = Account::unpack(&src_acc.data.borrow())?;
         let mut dst_data = Account::unpack(&dst_acc.data.borrow())?;
-
         // Verify source owner
-        info!(&signer.key.to_string());
-        info!(&src_acc.owner.to_string());
-        if signer.key == src_acc.owner {
-          info!("Same owner");
-        } else {
-          info!("Different owner");
+        if *signer.key != src_data.owner {
+          return Err(AppError::InvalidOwner.into());
         }
-
         // From
         src_data.amount = src_data
           .amount
-          .checked_add(amount)
+          .checked_sub(amount)
           .ok_or(AppError::Overflow)?;
         Account::pack(src_data, &mut src_acc.data.borrow_mut())?;
         // To
