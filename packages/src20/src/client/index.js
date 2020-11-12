@@ -4,12 +4,44 @@ const {
   Transaction,
   PublicKey,
   Account,
-  LAMPORTS_PER_SOL,
 } = require('@solana/web3.js');
 const soproxABI = require('soprox-abi');
 const { establishConnection, loadPayerFromStore } = require('../../lib/network');
 const store = require('../../lib/store');
 
+/**
+ * Token constructor
+ */
+const tokenConstructor = async (totalSupply, decimals, constructor, register, programId, payer, connection) => {
+  console.log('Token contructor at', constructor.publicKey.toBase58());
+  const schema = [
+    { key: 'code', type: 'u8' },
+    { key: 'totalSupply', type: 'u64' },
+    { key: 'demicals', type: 'u8' },
+  ];
+  const layout = new soproxABI.struct(schema, {
+    code: 0,
+    totalSupply,
+    decimals,
+  });
+  const instruction = new TransactionInstruction({
+    keys: [
+      { pubkey: constructor.publicKey, isSigner: true, isWritable: true },
+      { pubkey: register.publicKey, isSigner: false, isWritable: true },
+    ],
+    programId,
+    data: layout.toBuffer()
+  });
+  const transaction = new Transaction();
+  transaction.add(instruction);
+  const signer = new Account(Buffer.from(constructor.secretKey, 'hex'));
+  await sendAndConfirmTransaction(
+    connection, transaction, [payer, signer],
+    {
+      skipPreflight: true,
+      commitment: 'recent',
+    });
+}
 
 /**
  * Transfer ownership
@@ -21,7 +53,7 @@ const transferOwnership = async (newOwner, register, programId, payer, connectio
     { key: 'newOwner', type: 'pub' }
   ];
   const layout = new soproxABI.struct(schema, {
-    code: 0,
+    code: 1,
     newOwner: newOwner.toBase58(),
   });
   const instruction = new TransactionInstruction({
@@ -99,11 +131,34 @@ const init = async () => {
 }
 
 const main = async () => {
-  const { connection, payer, programId, registers: [register] } = await init();
+  const { connection, payer, programId, registers } = await init();
+  const constructor = registers[0];
+  const register = registers[1];
   let data = await info(register, connection);
   console.log('Current data:', data);
-  await transferOwnership(payer.publicKey, register, programId, payer, connection);
-  await transfer(1000n, register, programId, payer, connection);
+  await transferOwnership(
+    payer.publicKey,
+    register,
+    programId,
+    payer,
+    connection
+  );
+  await tokenConstructor(
+    500000000000000000n,
+    8,
+    constructor,
+    register,
+    programId,
+    payer,
+    connection
+  )
+  await transfer(
+    1000n,
+    register,
+    programId,
+    payer,
+    connection
+  );
   data = await info(register, connection);
   console.log('New data:', data);
   console.log('Success');

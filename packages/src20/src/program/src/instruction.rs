@@ -7,6 +7,7 @@ use std::convert::TryInto;
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum AppInstruction {
+  Constructor { total_supply: u64, decimals: u8 },
   Transfer { amount: u64 },
   TransferOwnership { new_owner: Pubkey },
 }
@@ -18,6 +19,22 @@ impl AppInstruction {
       .ok_or(AppError::InvalidInstruction)?;
     Ok(match tag {
       0 => {
+        let total_supply = rest
+          .get(..8)
+          .and_then(|slice| slice.try_into().ok())
+          .map(u64::from_le_bytes)
+          .ok_or(AppError::InvalidInstruction)?;
+        let decimals = rest
+          .get(8..9)
+          .and_then(|slice| slice.try_into().ok())
+          .map(u8::from_le_bytes)
+          .ok_or(AppError::InvalidInstruction)?;
+        Self::Constructor {
+          total_supply,
+          decimals,
+        }
+      }
+      1 => {
         let new_owner = rest
           .get(..32)
           .and_then(|slice| slice.try_into().ok())

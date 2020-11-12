@@ -1,5 +1,22 @@
 [
   {
+    "key": "constructor",
+    "schema": [
+      {
+        "key": "total_supply",
+        "type": "u64"
+      },
+      {
+        "key": "decimals",
+        "type": "u8"
+      },
+      {
+        "key": "initialized",
+        "type": "bool"
+      }
+    ]
+  },
+  {
     "key": "account",
     "schema": [
       {
