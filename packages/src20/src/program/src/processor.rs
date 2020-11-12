@@ -88,9 +88,13 @@ impl Processor {
       //
       AppInstruction::Transfer { amount } => {
         info!("Calling Transfer function");
-        // Extract accounts: signer, source, destination
+        // Extract accounts: owner, source, destination
         let accounts_iter = &mut accounts.iter();
-        let signer = next_account_info(accounts_iter)?;
+        let token = next_account_info(accounts_iter)?;
+        if token.owner != program_id {
+          return Err(AppError::IncorrectProgramId.into());
+        }
+        let owner = next_account_info(accounts_iter)?;
         let src_acc = next_account_info(accounts_iter)?;
         if src_acc.owner != program_id {
           return Err(AppError::IncorrectProgramId.into());
@@ -103,7 +107,7 @@ impl Processor {
         let mut src_data = Account::unpack(&src_acc.data.borrow())?;
         let mut dst_data = Account::unpack(&dst_acc.data.borrow())?;
         // Verify source owner
-        if *signer.key != src_data.owner {
+        if *owner.key != src_data.owner {
           return Err(AppError::InvalidOwner.into());
         }
         if src_acc.key == dst_acc.key {

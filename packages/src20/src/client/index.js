@@ -12,8 +12,8 @@ const store = require('../../lib/store');
 /**
  * Token constructor
  */
-const tokenConstructor = async (totalSupply, decimals, constructor, register, programId, payer, connection) => {
-  console.log('Token contructor at', constructor.publicKey.toBase58());
+const tokenConstructor = async (totalSupply, decimals, token, register, programId, payer, connection) => {
+  console.log('Token contructor at', token.publicKey.toBase58());
   const schema = [
     { key: 'code', type: 'u8' },
     { key: 'totalSupply', type: 'u64' },
@@ -26,7 +26,7 @@ const tokenConstructor = async (totalSupply, decimals, constructor, register, pr
   });
   const instruction = new TransactionInstruction({
     keys: [
-      { pubkey: constructor.publicKey, isSigner: true, isWritable: true },
+      { pubkey: token.publicKey, isSigner: true, isWritable: true },
       { pubkey: register.publicKey, isSigner: false, isWritable: true },
     ],
     programId,
@@ -34,7 +34,7 @@ const tokenConstructor = async (totalSupply, decimals, constructor, register, pr
   });
   const transaction = new Transaction();
   transaction.add(instruction);
-  const signer = new Account(Buffer.from(constructor.secretKey, 'hex'));
+  const signer = new Account(Buffer.from(token.secretKey, 'hex'));
   await sendAndConfirmTransaction(
     connection, transaction, [payer, signer],
     {
@@ -78,7 +78,7 @@ const transferOwnership = async (newOwner, register, programId, payer, connectio
 /**
  * Transfer
  */
-const transfer = async (amount, register, programId, payer, connection) => {
+const transfer = async (amount, token, register, programId, payer, connection) => {
   console.log('Transfer', amount, 'TOKEN to', register.publicKey.toBase58());
   const schema = [
     { key: 'code', type: 'u8' },
@@ -90,6 +90,7 @@ const transfer = async (amount, register, programId, payer, connection) => {
   });
   const instruction = new TransactionInstruction({
     keys: [
+      { pubkey: token.publicKey, isSigner: false, isWritable: false },
       { pubkey: payer.publicKey, isSigner: true, isWritable: false },
       { pubkey: register.publicKey, isSigner: false, isWritable: true },
       { pubkey: register.publicKey, isSigner: false, isWritable: true },
@@ -132,7 +133,7 @@ const init = async () => {
 
 const main = async () => {
   const { connection, payer, programId, registers } = await init();
-  const constructor = registers[0];
+  const token = registers[0];
   const register = registers[1];
   let data = await info(register, connection);
   console.log('Current data:', data);
@@ -146,7 +147,7 @@ const main = async () => {
   await tokenConstructor(
     500000000000000000n,
     8,
-    constructor,
+    token,
     register,
     programId,
     payer,
@@ -154,6 +155,7 @@ const main = async () => {
   )
   await transfer(
     1000n,
+    token,
     register,
     programId,
     payer,

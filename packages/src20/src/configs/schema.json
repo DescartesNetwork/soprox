@@ -1,6 +1,6 @@
 [
   {
-    "key": "constructor",
+    "key": "token",
     "schema": [
       {
         "key": "total_supply",
@@ -21,6 +21,10 @@
     "schema": [
       {
         "key": "owner",
+        "type": "pub"
+      },
+      {
+        "key": "token",
         "type": "pub"
       },
       {
