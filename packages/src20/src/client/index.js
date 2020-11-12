@@ -12,7 +12,7 @@ const store = require('../../lib/store');
 /**
  * Token constructor
  */
-const tokenConstructor = async (totalSupply, decimals, token, register, programId, payer, connection) => {
+const tokenConstructor = async (totalSupply, decimals, token, receiver, programId, payer, connection) => {
   console.log('Token contructor at', token.publicKey.toBase58());
   const schema = [
     { key: 'code', type: 'u8' },
@@ -26,17 +26,23 @@ const tokenConstructor = async (totalSupply, decimals, token, register, programI
   });
   const instruction = new TransactionInstruction({
     keys: [
+      { pubkey: payer.publicKey, isSigner: true, isWritable: false },
       { pubkey: token.publicKey, isSigner: true, isWritable: true },
-      { pubkey: register.publicKey, isSigner: false, isWritable: true },
+      { pubkey: receiver.publicKey, isSigner: true, isWritable: true },
     ],
     programId,
     data: layout.toBuffer()
   });
   const transaction = new Transaction();
   transaction.add(instruction);
-  const signer = new Account(Buffer.from(token.secretKey, 'hex'));
   await sendAndConfirmTransaction(
-    connection, transaction, [payer, signer],
+    connection,
+    transaction,
+    [
+      payer,
+      new Account(Buffer.from(token.secretKey, 'hex')),
+      new Account(Buffer.from(receiver.secretKey, 'hex'))
+    ],
     {
       skipPreflight: true,
       commitment: 'recent',
@@ -44,30 +50,34 @@ const tokenConstructor = async (totalSupply, decimals, token, register, programI
 }
 
 /**
- * Transfer ownership
+ * Account constructor
  */
-const transferOwnership = async (newOwner, register, programId, payer, connection) => {
-  console.log('TransferOnwership to', newOwner.toBase58(), 'of', register.publicKey.toBase58());
+const accountConstructor = async (token, account, programId, payer, connection) => {
+  console.log('Account constructor at', account.publicKey.toBase58());
   const schema = [
     { key: 'code', type: 'u8' },
-    { key: 'newOwner', type: 'pub' }
   ];
   const layout = new soproxABI.struct(schema, {
     code: 1,
-    newOwner: newOwner.toBase58(),
   });
   const instruction = new TransactionInstruction({
     keys: [
-      { pubkey: register.publicKey, isSigner: true, isWritable: true },
+      { pubkey: payer.publicKey, isSigner: true, isWritable: false },
+      { pubkey: token.publicKey, isSigner: false, isWritable: false },
+      { pubkey: account.publicKey, isSigner: true, isWritable: true },
     ],
     programId,
     data: layout.toBuffer()
   });
   const transaction = new Transaction();
   transaction.add(instruction);
-  const signer = new Account(Buffer.from(register.secretKey, 'hex'));
   await sendAndConfirmTransaction(
-    connection, transaction, [payer, signer],
+    connection,
+    transaction,
+    [
+      payer,
+      new Account(Buffer.from(account.secretKey, 'hex'))
+    ],
     {
       skipPreflight: true,
       commitment: 'recent',
@@ -78,8 +88,8 @@ const transferOwnership = async (newOwner, register, programId, payer, connectio
 /**
  * Transfer
  */
-const transfer = async (amount, token, register, programId, payer, connection) => {
-  console.log('Transfer', amount, 'TOKEN to', register.publicKey.toBase58());
+const transfer = async (amount, token, source, destination, programId, payer, connection) => {
+  console.log('Transfer', amount, 'TOKEN to', destination.publicKey.toBase58());
   const schema = [
     { key: 'code', type: 'u8' },
     { key: 'amount', type: 'u64' }
@@ -90,10 +100,10 @@ const transfer = async (amount, token, register, programId, payer, connection) =
   });
   const instruction = new TransactionInstruction({
     keys: [
-      { pubkey: token.publicKey, isSigner: false, isWritable: false },
       { pubkey: payer.publicKey, isSigner: true, isWritable: false },
-      { pubkey: register.publicKey, isSigner: false, isWritable: true },
-      { pubkey: register.publicKey, isSigner: false, isWritable: true },
+      { pubkey: token.publicKey, isSigner: false, isWritable: false },
+      { pubkey: source.publicKey, isSigner: false, isWritable: true },
+      { pubkey: destination.publicKey, isSigner: false, isWritable: true },
     ],
     programId,
     data: layout.toBuffer()
@@ -133,22 +143,21 @@ const init = async () => {
 
 const main = async () => {
   const { connection, payer, programId, registers } = await init();
-  const token = registers[0];
-  const register = registers[1];
-  let data = await info(register, connection);
-  console.log('Current data:', data);
-  await transferOwnership(
-    payer.publicKey,
-    register,
-    programId,
-    payer,
-    connection
-  );
+  const [token, source, destination] = registers;
+  console.log('Current source data:', await info(source, connection));
+  console.log('Current destination data:', await info(destination, connection));
   await tokenConstructor(
     500000000000000000n,
     8,
     token,
-    register,
+    source,
+    programId,
+    payer,
+    connection
+  )
+  await accountConstructor(
+    token,
+    destination,
     programId,
     payer,
     connection
@@ -156,13 +165,14 @@ const main = async () => {
   await transfer(
     1000n,
     token,
-    register,
+    source,
+    destination,
     programId,
     payer,
     connection
   );
-  data = await info(register, connection);
-  console.log('New data:', data);
+  console.log('New source data:', await info(source, connection));
+  console.log('New destination data:', await info(destination, connection));
   console.log('Success');
 }
 

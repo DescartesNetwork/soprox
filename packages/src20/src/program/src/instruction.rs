@@ -1,15 +1,15 @@
 #![cfg(feature = "program")]
 
 use crate::error::AppError;
-use solana_sdk::{program_error::ProgramError, pubkey::Pubkey};
+use solana_sdk::program_error::ProgramError;
 use std::convert::TryInto;
 
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum AppInstruction {
-  Constructor { total_supply: u64, decimals: u8 },
+  TokenConstructor { total_supply: u64, decimals: u8 },
+  AccountConstructor {},
   Transfer { amount: u64 },
-  TransferOwnership { new_owner: Pubkey },
 }
 
 impl AppInstruction {
@@ -29,19 +29,12 @@ impl AppInstruction {
           .and_then(|slice| slice.try_into().ok())
           .map(u8::from_le_bytes)
           .ok_or(AppError::InvalidInstruction)?;
-        Self::Constructor {
+        Self::TokenConstructor {
           total_supply,
           decimals,
         }
       }
-      1 => {
-        let new_owner = rest
-          .get(..32)
-          .and_then(|slice| slice.try_into().ok())
-          .map(Pubkey::new_from_array)
-          .ok_or(AppError::InvalidInstruction)?;
-        Self::TransferOwnership { new_owner }
-      }
+      1 => Self::AccountConstructor {},
       3 => {
         let amount = rest
           .get(..8)

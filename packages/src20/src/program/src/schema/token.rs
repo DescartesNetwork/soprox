@@ -27,7 +27,7 @@ impl Sealed for Token {}
 //
 impl IsInitialized for Token {
   fn is_initialized(&self) -> bool {
-    true
+    self.initialized
   }
 }
 
@@ -41,15 +41,14 @@ impl Pack for Token {
   fn unpack_from_slice(src: &[u8]) -> Result<Self, ProgramError> {
     let src = array_ref![src, 0, 10];
     let (total_supply, decimals, initialized) = array_refs![src, 8, 1, 1];
-    let _initialized = match initialized {
-      [0] => false,
-      [1] => true,
-      _ => return Err(ProgramError::InvalidAccountData),
-    };
     Ok(Token {
       total_supply: u64::from_le_bytes(*total_supply),
       decimals: u8::from_le_bytes(*decimals),
-      initialized: _initialized,
+      initialized: match initialized {
+        [0] => false,
+        [1] => true,
+        _ => return Err(ProgramError::InvalidAccountData),
+      },
     })
   }
   // Pack data from the data struct to [u8]
@@ -63,9 +62,6 @@ impl Pack for Token {
     } = self;
     *dst_total_supply = total_supply.to_le_bytes();
     *dst_decimals = decimals.to_le_bytes();
-    *dst_initialized = match initialized {
-      true => [1],
-      _ => [0],
-    };
+    *dst_initialized = [initialized as u8];
   }
 }

@@ -17,7 +17,7 @@
     ]
   },
   {
-    "key": "account",
+    "key": "source",
     "schema": [
       {
         "key": "owner",
@@ -30,6 +30,31 @@
       {
         "key": "amount",
         "type": "u64"
+      },
+      {
+        "key": "initialized",
+        "type": "bool"
+      }
+    ]
+  },
+  {
+    "key": "destination",
+    "schema": [
+      {
+        "key": "owner",
+        "type": "pub"
+      },
+      {
+        "key": "token",
+        "type": "pub"
+      },
+      {
+        "key": "amount",
+        "type": "u64"
+      },
+      {
+        "key": "initialized",
+        "type": "bool"
       }
     ]
   }

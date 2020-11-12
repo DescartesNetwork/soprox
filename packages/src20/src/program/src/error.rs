@@ -21,8 +21,12 @@ pub enum AppError {
   InvalidOwner,
   #[error("Incorrect program id")]
   IncorrectProgramId,
-  #[error("Contructor once")]
-  ContructorOnce,
+  #[error("Incorrect token id")]
+  IncorrectTokenId,
+  #[error("Already constructed")]
+  ConstructorOnce,
+  #[error("Not yet initialized")]
+  NotInitialized,
   #[error("Operation overflowed")]
   Overflow,
 }
@@ -48,7 +52,9 @@ impl PrintProgramError for AppError {
       AppError::InvalidInstruction => info!("Error: Invalid instruction"),
       AppError::InvalidOwner => info!("Error: Invalid owner"),
       AppError::IncorrectProgramId => info!("Error: Incorrect program id"),
-      AppError::ContructorOnce => info!("Error: Contrcutor once"),
+      AppError::IncorrectTokenId => info!("Error: Incorrect token id"),
+      AppError::ConstructorOnce => info!("Error: Already constructed"),
+      AppError::NotInitialized => info!("Error: Not yet initialized"),
       AppError::Overflow => info!("Error: Operation overflowed"),
     }
   }
