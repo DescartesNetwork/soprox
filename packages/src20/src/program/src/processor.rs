@@ -22,7 +22,7 @@ impl Processor {
     let instruction = AppInstruction::unpack(instruction_data)?;
     match instruction {
       //
-      // Token constructor
+      // Token constructor, code 0
       //
       AppInstruction::TokenConstructor {
         total_supply,
@@ -64,7 +64,7 @@ impl Processor {
       }
 
       //
-      // Account constructor
+      // Account constructor, code 1
       //
       AppInstruction::AccountConstructor {} => {
         info!("Calling AccountConstructor function");
@@ -97,7 +97,7 @@ impl Processor {
       }
 
       //
-      // Transfer token
+      // Transfer token, code 3
       //
       AppInstruction::Transfer { amount } => {
         info!("Calling Transfer function");

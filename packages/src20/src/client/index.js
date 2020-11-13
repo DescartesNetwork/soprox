@@ -146,31 +146,19 @@ const main = async () => {
   const [token, source, destination] = registers;
   console.log('Current source data:', await info(source, connection));
   console.log('Current destination data:', await info(destination, connection));
-  await tokenConstructor(
-    500000000000000000n,
-    8,
-    token,
-    source,
-    programId,
-    payer,
-    connection
-  )
-  await accountConstructor(
-    token,
-    destination,
-    programId,
-    payer,
-    connection
-  )
+  try {
+    await tokenConstructor(
+      500000000000000000n, 8, token, source,
+      programId, payer, connection);
+    await accountConstructor(
+      token, destination,
+      programId, payer, connection);
+  } catch (er) {
+    // Token or Account is already initialized
+  }
   await transfer(
-    1000n,
-    token,
-    source,
-    destination,
-    programId,
-    payer,
-    connection
-  );
+    1000n, token, source, destination,
+    programId, payer, connection);
   console.log('New source data:', await info(source, connection));
   console.log('New destination data:', await info(destination, connection));
   console.log('Success');
