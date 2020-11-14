@@ -84,7 +84,6 @@ const accountConstructor = async (token, account, programId, payer, connection) 
     });
 }
 
-
 /**
  * Transfer
  */
@@ -102,6 +101,78 @@ const transfer = async (amount, token, source, destination, programId, payer, co
     keys: [
       { pubkey: payer.publicKey, isSigner: true, isWritable: false },
       { pubkey: token.publicKey, isSigner: false, isWritable: false },
+      { pubkey: source.publicKey, isSigner: false, isWritable: true },
+      { pubkey: destination.publicKey, isSigner: false, isWritable: true },
+    ],
+    programId,
+    data: layout.toBuffer()
+  });
+  const transaction = new Transaction();
+  transaction.add(instruction);
+  await sendAndConfirmTransaction(
+    connection, transaction, [payer],
+    {
+      skipPreflight: true,
+      commitment: 'recent',
+    });
+}
+
+/**
+ * Approve
+ */
+const approve = async (amount, token, delegation, source, delegate, programId, payer, connection) => {
+  console.log('Approve', amount, 'TOKEN to', delegation.publicKey.toBase58());
+  const schema = [
+    { key: 'code', type: 'u8' },
+    { key: 'amount', type: 'u64' }
+  ];
+  const layout = new soproxABI.struct(schema, {
+    code: 4,
+    amount,
+  });
+  const instruction = new TransactionInstruction({
+    keys: [
+      { pubkey: payer.publicKey, isSigner: true, isWritable: false },
+      { pubkey: token.publicKey, isSigner: false, isWritable: false },
+      { pubkey: delegation.publicKey, isSigner: true, isWritable: true },
+      { pubkey: source.publicKey, isSigner: false, isWritable: false },
+      { pubkey: delegate.publicKey, isSigner: false, isWritable: false },
+    ],
+    programId,
+    data: layout.toBuffer()
+  });
+  const transaction = new Transaction();
+  transaction.add(instruction);
+  await sendAndConfirmTransaction(
+    connection, transaction,
+    [
+      payer,
+      new Account(Buffer.from(delegation.secretKey, 'hex'))
+    ],
+    {
+      skipPreflight: true,
+      commitment: 'recent',
+    });
+}
+
+/**
+ * Approve
+ */
+const transferFrom = async (amount, token, delegation, source, destination, programId, payer, connection) => {
+  console.log('TransferFrom', amount, 'TOKEN to', delegation.publicKey.toBase58());
+  const schema = [
+    { key: 'code', type: 'u8' },
+    { key: 'amount', type: 'u64' }
+  ];
+  const layout = new soproxABI.struct(schema, {
+    code: 5,
+    amount,
+  });
+  const instruction = new TransactionInstruction({
+    keys: [
+      { pubkey: payer.publicKey, isSigner: true, isWritable: false },
+      { pubkey: token.publicKey, isSigner: false, isWritable: false },
+      { pubkey: delegation.publicKey, isSigner: false, isWritable: true },
       { pubkey: source.publicKey, isSigner: false, isWritable: true },
       { pubkey: destination.publicKey, isSigner: false, isWritable: true },
     ],
@@ -143,9 +214,7 @@ const init = async () => {
 
 const main = async () => {
   const { connection, payer, programId, registers } = await init();
-  const [token, source, destination] = registers;
-  console.log('Current source data:', await info(source, connection));
-  console.log('Current destination data:', await info(destination, connection));
+  const [token, source, destination, delegation] = registers;
   try {
     await tokenConstructor(
       500000000000000000n, 8, token, source,
@@ -156,11 +225,23 @@ const main = async () => {
   } catch (er) {
     // Token or Account is already initialized
   }
+  console.log('1. Source data:', await info(source, connection));
+  console.log('1. Destination data:', await info(destination, connection));
   await transfer(
     1000n, token, source, destination,
     programId, payer, connection);
-  console.log('New source data:', await info(source, connection));
-  console.log('New destination data:', await info(destination, connection));
+  console.log('2. Source data:', await info(source, connection));
+  console.log('2. Destination data:', await info(destination, connection));
+  await approve(
+    1000n, token, delegation, source, payer,
+    programId, payer, connection);
+  console.log('3. Source data:', await info(source, connection));
+  console.log('3. Destination data:', await info(destination, connection));
+  await transferFrom(
+    1000n, token, delegation, source, destination,
+    programId, payer, connection);
+  console.log('4. Source data:', await info(source, connection));
+  console.log('4. Destination data:', await info(destination, connection));
   console.log('Success');
 }
 

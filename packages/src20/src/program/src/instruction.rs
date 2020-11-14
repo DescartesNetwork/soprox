@@ -9,7 +9,10 @@ use std::convert::TryInto;
 pub enum AppInstruction {
   TokenConstructor { total_supply: u64, decimals: u8 },
   AccountConstructor {},
+  DelegationConstructor { amount: u64 },
   Transfer { amount: u64 },
+  Approve { amount: u64 },
+  TransferFrom { amount: u64 },
 }
 
 impl AppInstruction {
@@ -18,6 +21,7 @@ impl AppInstruction {
       .split_first()
       .ok_or(AppError::InvalidInstruction)?;
     Ok(match tag {
+      // Token contructor
       0 => {
         let total_supply = rest
           .get(..8)
@@ -34,14 +38,34 @@ impl AppInstruction {
           decimals,
         }
       }
+      // Account constructor
       1 => Self::AccountConstructor {},
-      3 => {
+      // Delegation constructor
+      2 => {
         let amount = rest
           .get(..8)
           .and_then(|slice| slice.try_into().ok())
           .map(u64::from_le_bytes)
           .ok_or(AppError::InvalidInstruction)?;
-        Self::Transfer { amount }
+        Self::DelegationConstructor { amount }
+      }
+      // Token operation
+      3 | 4 | 5 => {
+        let amount = rest
+          .get(..8)
+          .and_then(|slice| slice.try_into().ok())
+          .map(u64::from_le_bytes)
+          .ok_or(AppError::InvalidInstruction)?;
+        match tag {
+          // Transfer
+          3 => Self::Transfer { amount },
+          // Approve
+          4 => Self::Approve { amount },
+          // TransferFrom
+          5 => Self::TransferFrom { amount },
+          // Error
+          _ => unreachable!(),
+        }
       }
       _ => return Err(AppError::InvalidInstruction.into()),
     })
