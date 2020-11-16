@@ -3,6 +3,10 @@
     "key": "token",
     "schema": [
       {
+        "key": "symbol",
+        "type": "[char;3]"
+      },
+      {
         "key": "total_supply",
         "type": "u64"
       },

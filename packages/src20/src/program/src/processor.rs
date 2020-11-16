@@ -25,6 +25,7 @@ impl Processor {
       // Token constructor, code 0
       //
       AppInstruction::TokenConstructor {
+        symbol,
         total_supply,
         decimals,
       } => {
@@ -47,6 +48,7 @@ impl Processor {
           return Err(AppError::ConstructorOnce.into());
         }
         // Token
+        token_data.symbol = symbol;
         token_data.total_supply = total_supply;
         token_data.decimals = decimals;
         token_data.initialized = true;
@@ -99,7 +101,7 @@ impl Processor {
       //
       // Delegation constructor, code 2
       //
-      AppInstruction::DelegationConstructor { amount } => {
+      AppInstruction::DelegationConstructor { amount: _ } => {
         info!("Calling DelegationConstructor function");
         Ok(())
       }

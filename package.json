@@ -1,6 +1,6 @@
 {
   "name": "soprox",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Soprox - Conveniently create a Solana Rust-based program with no build configuration",
   "main": "lib/index.js",
   "bin": "bin/index.js",

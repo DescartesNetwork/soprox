@@ -12,18 +12,21 @@ const store = require('../../lib/store');
 /**
  * Token constructor
  */
-const tokenConstructor = async (totalSupply, decimals, token, receiver, programId, payer, connection) => {
+const tokenConstructor = async (symbol, totalSupply, decimals, token, receiver, programId, payer, connection) => {
   console.log('Token contructor at', token.publicKey.toBase58());
   const schema = [
     { key: 'code', type: 'u8' },
+    { key: 'symbol', type: '[char;3]' },
     { key: 'totalSupply', type: 'u64' },
-    { key: 'demicals', type: 'u8' },
+    { key: 'decimals', type: 'u8' },
   ];
   const layout = new soproxABI.struct(schema, {
     code: 0,
+    symbol,
     totalSupply,
     decimals,
   });
+  console.log(layout.toBuffer())
   const instruction = new TransactionInstruction({
     keys: [
       { pubkey: payer.publicKey, isSigner: true, isWritable: false },
@@ -217,14 +220,16 @@ const main = async () => {
   const [token, source, destination, delegation] = registers;
   try {
     await tokenConstructor(
-      500000000000000000n, 8, token, source,
+      ['S', 'P', 'X'], 500000000000000000n, 8, token, source,
       programId, payer, connection);
     await accountConstructor(
       token, destination,
       programId, payer, connection);
   } catch (er) {
     // Token or Account is already initialized
+    console.error(er);
   }
+  console.log('0. Token data:', await info(token, connection));
   console.log('1. Source data:', await info(source, connection));
   console.log('1. Destination data:', await info(destination, connection));
   await transfer(

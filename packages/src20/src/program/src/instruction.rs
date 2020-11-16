@@ -2,17 +2,29 @@
 
 use crate::error::AppError;
 use solana_sdk::program_error::ProgramError;
-use std::convert::TryInto;
+use std::{char, convert::TryInto};
 
 #[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum AppInstruction {
-  TokenConstructor { total_supply: u64, decimals: u8 },
+  TokenConstructor {
+    symbol: [char; 3],
+    total_supply: u64,
+    decimals: u8,
+  },
   AccountConstructor {},
-  DelegationConstructor { amount: u64 },
-  Transfer { amount: u64 },
-  Approve { amount: u64 },
-  TransferFrom { amount: u64 },
+  DelegationConstructor {
+    amount: u64,
+  },
+  Transfer {
+    amount: u64,
+  },
+  Approve {
+    amount: u64,
+  },
+  TransferFrom {
+    amount: u64,
+  },
 }
 
 impl AppInstruction {
@@ -23,17 +35,36 @@ impl AppInstruction {
     Ok(match tag {
       // Token contructor
       0 => {
+        let first_symbol = rest
+          .get(..4)
+          .and_then(|slice| slice.try_into().ok())
+          .map(u32::from_le_bytes)
+          .and_then(char::from_u32)
+          .ok_or(AppError::InvalidInstruction)?;
+        let second_symbol = rest
+          .get(4..8)
+          .and_then(|slice| slice.try_into().ok())
+          .map(u32::from_le_bytes)
+          .and_then(char::from_u32)
+          .ok_or(AppError::InvalidInstruction)?;
+        let third_symbol = rest
+          .get(8..12)
+          .and_then(|slice| slice.try_into().ok())
+          .map(u32::from_le_bytes)
+          .and_then(char::from_u32)
+          .ok_or(AppError::InvalidInstruction)?;
         let total_supply = rest
-          .get(..8)
+          .get(12..20)
           .and_then(|slice| slice.try_into().ok())
           .map(u64::from_le_bytes)
           .ok_or(AppError::InvalidInstruction)?;
         let decimals = rest
-          .get(8..9)
+          .get(20..21)
           .and_then(|slice| slice.try_into().ok())
           .map(u8::from_le_bytes)
           .ok_or(AppError::InvalidInstruction)?;
         Self::TokenConstructor {
+          symbol: [first_symbol, second_symbol, third_symbol],
           total_supply,
           decimals,
         }
