@@ -35,24 +35,14 @@ impl AppInstruction {
     Ok(match tag {
       // Token contructor
       0 => {
-        let first_symbol = rest
-          .get(..4)
-          .and_then(|slice| slice.try_into().ok())
-          .map(u32::from_le_bytes)
-          .and_then(char::from_u32)
-          .ok_or(AppError::InvalidInstruction)?;
-        let second_symbol = rest
-          .get(4..8)
-          .and_then(|slice| slice.try_into().ok())
-          .map(u32::from_le_bytes)
-          .and_then(char::from_u32)
-          .ok_or(AppError::InvalidInstruction)?;
-        let third_symbol = rest
-          .get(8..12)
-          .and_then(|slice| slice.try_into().ok())
-          .map(u32::from_le_bytes)
-          .and_then(char::from_u32)
-          .ok_or(AppError::InvalidInstruction)?;
+        let vec_symbol: Vec<_> = rest
+          .get(..12)
+          .unwrap()
+          .chunks(4)
+          .map(|slice| slice.try_into().unwrap())
+          .map(|slice| u32::from_le_bytes(slice))
+          .map(|slice| char::from_u32(slice).unwrap())
+          .collect();
         let total_supply = rest
           .get(12..20)
           .and_then(|slice| slice.try_into().ok())
@@ -64,7 +54,7 @@ impl AppInstruction {
           .map(u8::from_le_bytes)
           .ok_or(AppError::InvalidInstruction)?;
         Self::TokenConstructor {
-          symbol: [first_symbol, second_symbol, third_symbol],
+          symbol: [vec_symbol[0], vec_symbol[1], vec_symbol[2]],
           total_supply,
           decimals,
         }

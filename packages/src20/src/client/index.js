@@ -26,7 +26,6 @@ const tokenConstructor = async (symbol, totalSupply, decimals, token, receiver, 
     totalSupply,
     decimals,
   });
-  console.log(layout.toBuffer())
   const instruction = new TransactionInstruction({
     keys: [
       { pubkey: payer.publicKey, isSigner: true, isWritable: false },
