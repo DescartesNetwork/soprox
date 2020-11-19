@@ -156,7 +156,7 @@ impl Processor {
       }
 
       //
-      // Approve, code 4
+      // Approve a delegation, code 4
       //
       AppInstruction::Approve { amount } => {
         info!("Calling Approve function");
@@ -260,6 +260,41 @@ impl Processor {
           .checked_add(amount)
           .ok_or(AppError::Overflow)?;
         Account::pack(dst_data, &mut dst_acc.data.borrow_mut())?;
+
+        Ok(())
+      }
+
+      //
+      // Revoke a delegation, code 6
+      //
+      AppInstruction::Revoke {} => {
+        info!("Calling Revoke function");
+        let accounts_iter = &mut accounts.iter();
+        let owner = next_account_info(accounts_iter)?;
+        let token_acc = next_account_info(accounts_iter)?;
+        let delegation_acc = next_account_info(accounts_iter)?;
+        if token_acc.owner != program_id || delegation_acc.owner != program_id {
+          return Err(AppError::IncorrectProgramId.into());
+        }
+        // Extract accounts data
+        let mut delegation_data = Delegation::unpack(&delegation_acc.data.borrow())?;
+        if !delegation_data.is_initialized() {
+          return Err(AppError::NotInitialized.into());
+        }
+        if delegation_data.token != *token_acc.key {
+          return Err(AppError::IncorrectTokenId.into());
+        }
+        if !owner.is_signer || *owner.key != delegation_data.owner {
+          return Err(AppError::InvalidOwner.into());
+        }
+
+        let balance = owner.lamports();
+        **owner.lamports.borrow_mut() = balance
+          .checked_add(delegation_acc.lamports())
+          .ok_or(AppError::Overflow)?;
+        **delegation_acc.lamports.borrow_mut() = 0;
+        delegation_data.amount = 0;
+        Delegation::pack(delegation_data, &mut delegation_acc.data.borrow_mut())?;
         Ok(())
       }
     }

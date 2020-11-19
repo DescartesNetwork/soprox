@@ -192,6 +192,36 @@ const transferFrom = async (amount, token, delegation, source, destination, prog
 }
 
 /**
+ * Revoke
+ */
+const revoke = async (token, delegation, programId, payer, connection) => {
+  console.log('Revoke', delegation.publicKey.toBase58());
+  const schema = [
+    { key: 'code', type: 'u8' },
+  ];
+  const layout = new soproxABI.struct(schema, {
+    code: 6,
+  });
+  const instruction = new TransactionInstruction({
+    keys: [
+      { pubkey: payer.publicKey, isSigner: true, isWritable: false },
+      { pubkey: token.publicKey, isSigner: false, isWritable: false },
+      { pubkey: delegation.publicKey, isSigner: false, isWritable: true },
+    ],
+    programId,
+    data: layout.toBuffer()
+  });
+  const transaction = new Transaction();
+  transaction.add(instruction);
+  await sendAndConfirmTransaction(
+    connection, transaction, [payer],
+    {
+      skipPreflight: true,
+      commitment: 'recent',
+    });
+}
+
+/**
  * Account info
  */
 const info = async (register, connection) => {
@@ -246,6 +276,10 @@ const main = async () => {
     programId, payer, connection);
   console.log('4. Source data:', await info(source, connection));
   console.log('4. Destination data:', await info(destination, connection));
+  console.log('5.1. Delegation info', await connection.getAccountInfo(delegation.publicKey));
+  await revoke(token, delegation, programId, payer, connection);
+  console.log('5.2. Delegation info', await connection.getAccountInfo(delegation.publicKey));
+
   console.log('Success');
 }
 

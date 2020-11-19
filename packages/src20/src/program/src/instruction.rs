@@ -25,6 +25,7 @@ pub enum AppInstruction {
   TransferFrom {
     amount: u64,
   },
+  Revoke,
 }
 
 impl AppInstruction {
@@ -70,7 +71,7 @@ impl AppInstruction {
           .ok_or(AppError::InvalidInstruction)?;
         Self::DelegationConstructor { amount }
       }
-      // Token operation
+      // Transfer, Approve, TransferFrom
       3 | 4 | 5 => {
         let amount = rest
           .get(..8)
@@ -78,16 +79,14 @@ impl AppInstruction {
           .map(u64::from_le_bytes)
           .ok_or(AppError::InvalidInstruction)?;
         match tag {
-          // Transfer
           3 => Self::Transfer { amount },
-          // Approve
           4 => Self::Approve { amount },
-          // TransferFrom
           5 => Self::TransferFrom { amount },
-          // Error
           _ => unreachable!(),
         }
       }
+      // Revoke
+      6 => Self::Revoke {},
       _ => return Err(AppError::InvalidInstruction.into()),
     })
   }
