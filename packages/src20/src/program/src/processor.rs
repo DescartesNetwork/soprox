@@ -265,7 +265,77 @@ impl Processor {
       }
 
       //
-      // Revoke a delegation, code 6
+      // Increase an amount of delegation, code 6
+      //
+      AppInstruction::IncreaseApproval { amount } => {
+        info!("Calling IncreaseApproval function");
+        // Extract accounts: owner, token, delegation
+        let accounts_iter = &mut accounts.iter();
+        let owner = next_account_info(accounts_iter)?;
+        let token_acc = next_account_info(accounts_iter)?;
+        let delegation_acc = next_account_info(accounts_iter)?;
+        if token_acc.owner != program_id || delegation_acc.owner != program_id {
+          return Err(AppError::IncorrectProgramId.into());
+        }
+        // Extract accounts data
+        let token_data = Token::unpack(&token_acc.data.borrow())?;
+        let mut delegation_data = Delegation::unpack_unchecked(&delegation_acc.data.borrow())?;
+        if !token_data.is_initialized() || !delegation_data.is_initialized() {
+          return Err(AppError::NotInitialized.into());
+        }
+        if delegation_data.token != *token_acc.key {
+          return Err(AppError::IncorrectTokenId.into());
+        }
+        if !owner.is_signer || *owner.key != delegation_data.owner {
+          return Err(AppError::InvalidOwner.into());
+        }
+        // Delegation
+        delegation_data.amount = delegation_data
+          .amount
+          .checked_add(amount)
+          .ok_or(AppError::Overflow)?;
+        Delegation::pack(delegation_data, &mut delegation_acc.data.borrow_mut())?;
+
+        Ok(())
+      }
+
+      //
+      // Decrease an amount of delegation, code 7
+      //
+      AppInstruction::DecreaseApproval { amount } => {
+        info!("Calling DecreaseApproval function");
+        // Extract accounts: owner, token, delegation
+        let accounts_iter = &mut accounts.iter();
+        let owner = next_account_info(accounts_iter)?;
+        let token_acc = next_account_info(accounts_iter)?;
+        let delegation_acc = next_account_info(accounts_iter)?;
+        if token_acc.owner != program_id || delegation_acc.owner != program_id {
+          return Err(AppError::IncorrectProgramId.into());
+        }
+        // Extract accounts data
+        let token_data = Token::unpack(&token_acc.data.borrow())?;
+        let mut delegation_data = Delegation::unpack_unchecked(&delegation_acc.data.borrow())?;
+        if !token_data.is_initialized() || !delegation_data.is_initialized() {
+          return Err(AppError::NotInitialized.into());
+        }
+        if delegation_data.token != *token_acc.key {
+          return Err(AppError::IncorrectTokenId.into());
+        }
+        if !owner.is_signer || *owner.key != delegation_data.owner {
+          return Err(AppError::InvalidOwner.into());
+        }
+        // Delegation
+        delegation_data.amount = delegation_data
+          .amount
+          .checked_sub(amount)
+          .ok_or(AppError::Overflow)?;
+        Delegation::pack(delegation_data, &mut delegation_acc.data.borrow_mut())?;
+
+        Ok(())
+      }
+
+      //
+      // Revoke a delegation, code 8
       //
       AppInstruction::Revoke {} => {
         info!("Calling Revoke function");
@@ -295,6 +365,40 @@ impl Processor {
         **delegation_acc.lamports.borrow_mut() = 0;
         delegation_data.amount = 0;
         Delegation::pack(delegation_data, &mut delegation_acc.data.borrow_mut())?;
+
+        Ok(())
+      }
+
+      //
+      // Destruct an account, code 9
+      //
+      AppInstruction::AccountDestruction {} => {
+        info!("Calling AccountDestruction function");
+        let accounts_iter = &mut accounts.iter();
+        let owner = next_account_info(accounts_iter)?;
+        let token_acc = next_account_info(accounts_iter)?;
+        let target_acc = next_account_info(accounts_iter)?;
+        if token_acc.owner != program_id || target_acc.owner != program_id {
+          return Err(AppError::IncorrectProgramId.into());
+        }
+        // Extract and change account data
+        let token_data = Token::unpack(&token_acc.data.borrow())?;
+        let mut target_data = Account::unpack_unchecked(&target_acc.data.borrow())?;
+        if !token_data.is_initialized() || !target_data.is_initialized() {
+          return Err(AppError::NotInitialized.into());
+        }
+        if !owner.is_signer || *owner.key != target_data.owner {
+          return Err(AppError::InvalidOwner.into());
+        }
+
+        let balance = owner.lamports();
+        **owner.lamports.borrow_mut() = balance
+          .checked_add(target_acc.lamports())
+          .ok_or(AppError::Overflow)?;
+        **target_acc.lamports.borrow_mut() = 0;
+        target_data.amount = 0;
+        Account::pack(target_data, &mut target_acc.data.borrow_mut())?;
+
         Ok(())
       }
     }

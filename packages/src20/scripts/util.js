@@ -34,7 +34,8 @@ const airdrop = async (connection, account, lamports = 100 * LAMPORTS_PER_SOL) =
  */
 async function establishPayer(connection) {
   let payer = loadPayerFromStore();
-  if (payer) return payer;
+  if (payer && connection.getBalance(account.publicKey) > 10 * LAMPORTS_PER_SOL)
+    return payer;
   payer = new Account();
   await airdrop(connection, payer);
   savePayerToStore(payer);

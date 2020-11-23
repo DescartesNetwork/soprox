@@ -25,7 +25,14 @@ pub enum AppInstruction {
   TransferFrom {
     amount: u64,
   },
-  Revoke,
+  IncreaseApproval {
+    amount: u64,
+  },
+  DecreaseApproval {
+    amount: u64,
+  },
+  Revoke {},
+  AccountDestruction {},
 }
 
 impl AppInstruction {
@@ -71,8 +78,8 @@ impl AppInstruction {
           .ok_or(AppError::InvalidInstruction)?;
         Self::DelegationConstructor { amount }
       }
-      // Transfer, Approve, TransferFrom
-      3 | 4 | 5 => {
+      // Transfer, Approve, TransferFrom, IncreaseApproval, DecreaseApproval
+      3 | 4 | 5 | 6 | 7 => {
         let amount = rest
           .get(..8)
           .and_then(|slice| slice.try_into().ok())
@@ -82,11 +89,15 @@ impl AppInstruction {
           3 => Self::Transfer { amount },
           4 => Self::Approve { amount },
           5 => Self::TransferFrom { amount },
+          6 => Self::IncreaseApproval { amount },
+          7 => Self::DecreaseApproval { amount },
           _ => unreachable!(),
         }
       }
       // Revoke
-      6 => Self::Revoke {},
+      8 => Self::Revoke {},
+      // Destruct
+      9 => Self::AccountDestruction {},
       _ => return Err(AppError::InvalidInstruction.into()),
     })
   }

@@ -4,25 +4,7 @@ const {
   Transaction,
 } = require('@solana/web3.js');
 const soproxABI = require('soprox-abi');
-
-const testConstructor = require('./constructor.test');
-const testTransfer = require('./transfer.test');
-const testApprove = require('./approve.test');
-const testDestruct = require('./destruct.test');
-
-const main = async () => {
-  await testConstructor();
-  await testTransfer();
-  await testApprove();
-  await testDestruct();
-}
-
-try {
-  main();
-}
-catch (er) {
-  console.error(er);
-}
+const { init, info } = require('./helpers');
 
 /**
  * Revoke
@@ -52,4 +34,12 @@ const revoke = async (token, delegation, programId, payer, connection) => {
       skipPreflight: true,
       commitment: 'recent',
     });
+}
+
+module.exports = async function () {
+  console.log('\n\n*** Test destruct\n');
+  const { connection, payer, programId, registers: [token, source, destination, delegation] } = await init();
+  console.log('Current owner lamports:', await connection.getBalance(payer.publicKey));
+  await revoke(token, delegation, programId, payer, connection);
+  console.log('New owner lamports:', await connection.getBalance(payer.publicKey));
 }
