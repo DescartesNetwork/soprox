@@ -1,10 +1,6 @@
-const {
-  sendAndConfirmTransaction,
-  TransactionInstruction,
-  Transaction,
-} = require('@solana/web3.js');
+const { sendAndConfirmTransaction, TransactionInstruction, Transaction } = require('@solana/web3.js');
 const soproxABI = require('soprox-abi');
-const { init, info } = require('./helpers');
+const { init } = require('./helpers');
 
 /**
  * Revoke

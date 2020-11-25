@@ -1,6 +1,6 @@
 {
   "name": "soprox",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Soprox - Conveniently create a Solana Rust-based program with no build configuration",
   "main": "lib/index.js",
   "bin": "bin/index.js",
@@ -22,8 +22,10 @@
   },
   "homepage": "https://github.com/DescartesNetwork/soprox#readme",
   "dependencies": {
+    "@solana/web3.js": "^0.87.1",
     "fs-extra": "^9.0.1",
     "ora": "^5.1.0",
+    "regenerator-runtime": "^0.13.7",
     "rimraf": "^3.0.2"
   },
   "devDependencies": {
@@ -31,6 +33,7 @@
     "@babel/core": "^7.12.3",
     "@babel/plugin-proposal-class-properties": "^7.12.1",
     "@babel/plugin-transform-arrow-functions": "^7.12.1",
+    "@babel/plugin-transform-async-to-generator": "^7.12.1",
     "@babel/preset-env": "^7.12.1"
   }
 }

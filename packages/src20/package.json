@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/client/index.js",
     "build": "./src/program/do.sh build",
-    "deploy": "node ./scripts/index.js",
+    "deploy": "node ./lib/deployer.js",
     "clean": "./src/program/do.sh clean && rm -rf ./dist && npm run clean:store",
     "clean:store": "rm -rf store",
     "test": "./src/program/do.sh test",

@@ -1,6 +1,6 @@
 const { PublicKey } = require('@solana/web3.js');
 const soproxABI = require('soprox-abi');
-const { establishConnection, loadPayerFromStore } = require('../../lib/network');
+const { establishConnection, loadPayer } = require('../../lib/network');
 const store = require('../../lib/store');
 
 /**
@@ -8,7 +8,7 @@ const store = require('../../lib/store');
  */
 const init = async () => {
   const connection = await establishConnection();
-  const payer = loadPayerFromStore();
+  const payer = await loadPayer(connection);
   const program = store.load('program');
   const programId = new PublicKey(program.address);
   const registers = store.load('abi').schema.map(register => {
