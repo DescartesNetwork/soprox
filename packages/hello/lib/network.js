@@ -104,7 +104,7 @@ const loadProgram = async (data, payer, connection) => {
 /**
  * Load registers
  */
-loadRegisters = async (schema, payer, program, connection) => {
+const loadRegisters = async (schema, payer, program, connection) => {
   const filename = 'abi';
   const data = store.load(filename);
 
