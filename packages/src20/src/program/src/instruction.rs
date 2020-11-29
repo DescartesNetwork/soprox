@@ -4,7 +4,6 @@ use crate::error::AppError;
 use solana_sdk::program_error::ProgramError;
 use std::{char, convert::TryInto};
 
-#[repr(C)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum AppInstruction {
   TokenConstructor {

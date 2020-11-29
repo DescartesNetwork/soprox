@@ -10,7 +10,6 @@ use solana_sdk::{
 //
 // Define the data struct
 //
-#[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Delegation {
   pub owner: Pubkey,

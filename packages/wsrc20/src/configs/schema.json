@@ -1,5 +1,14 @@
 [
   {
+    "key": "dummy",
+    "schema": [
+      {
+        "key": "numGreets",
+        "type": "u64"
+      }
+    ]
+  },
+  {
     "key": "token",
     "schema": [
       {
@@ -50,35 +59,6 @@
       },
       {
         "key": "token",
-        "type": "pub"
-      },
-      {
-        "key": "amount",
-        "type": "u64"
-      },
-      {
-        "key": "initialized",
-        "type": "bool"
-      }
-    ]
-  },
-  {
-    "key": "delegation",
-    "schema": [
-      {
-        "key": "owner",
-        "type": "pub"
-      },
-      {
-        "key": "token",
-        "type": "pub"
-      },
-      {
-        "key": "source",
-        "type": "pub"
-      },
-      {
-        "key": "delegate",
         "type": "pub"
       },
       {

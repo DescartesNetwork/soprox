@@ -10,7 +10,6 @@ use std::{char, convert::TryInto};
 //
 // Define the data struct
 //
-#[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Token {
   pub symbol: [char; 4],
