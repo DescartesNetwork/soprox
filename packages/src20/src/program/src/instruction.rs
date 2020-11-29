@@ -8,7 +8,7 @@ use std::{char, convert::TryInto};
 #[derive(Clone, Debug, PartialEq)]
 pub enum AppInstruction {
   TokenConstructor {
-    symbol: [char; 3],
+    symbol: [char; 4],
     total_supply: u64,
     decimals: u8,
   },
@@ -44,7 +44,7 @@ impl AppInstruction {
       // Token contructor
       0 => {
         let vec_symbol: Vec<_> = rest
-          .get(..12)
+          .get(..16)
           .unwrap()
           .chunks(4)
           .map(|slice| slice.try_into().unwrap())
@@ -52,17 +52,17 @@ impl AppInstruction {
           .map(|slice| char::from_u32(slice).unwrap())
           .collect();
         let total_supply = rest
-          .get(12..20)
+          .get(16..24)
           .and_then(|slice| slice.try_into().ok())
           .map(u64::from_le_bytes)
           .ok_or(AppError::InvalidInstruction)?;
         let decimals = rest
-          .get(20..21)
+          .get(24..25)
           .and_then(|slice| slice.try_into().ok())
           .map(u8::from_le_bytes)
           .ok_or(AppError::InvalidInstruction)?;
         Self::TokenConstructor {
-          symbol: [vec_symbol[0], vec_symbol[1], vec_symbol[2]],
+          symbol: [vec_symbol[0], vec_symbol[1], vec_symbol[2], vec_symbol[3]],
           total_supply,
           decimals,
         }

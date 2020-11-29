@@ -4,7 +4,7 @@
     "schema": [
       {
         "key": "symbol",
-        "type": "[char;3]"
+        "type": "[char;4]"
       },
       {
         "key": "total_supply",

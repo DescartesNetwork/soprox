@@ -9,7 +9,7 @@ const tokenConstructor = async (symbol, totalSupply, decimals, token, receiver, 
   console.log('Token contructor at', token.publicKey.toBase58());
   const schema = [
     { key: 'code', type: 'u8' },
-    { key: 'symbol', type: '[char;3]' },
+    { key: 'symbol', type: '[char;4]' },
     { key: 'totalSupply', type: 'u64' },
     { key: 'decimals', type: 'u8' },
   ];
@@ -84,15 +84,14 @@ module.exports = async function () {
   const { connection, payer, programId, registers: [token, source, destination, delegation] } = await init();
 
   try {
-    const symbol = ['S', 'P', 'X'];
+    const symbol = ['S', 'P', 'X', '-']; // Don't the last character
     const totalSupply = 500000000000000000n;
     const decimals = 8;
     await tokenConstructor(symbol, totalSupply, decimals, token, source, programId, payer, connection);
     await accountConstructor(token, destination, programId, payer, connection);
   } catch (er) {
     // Token or Account is already initialized
-    console.log('The token and accound may be created already. Have a look the following error for details.');
-    console.error(er);
+    console.log('The token and accound may be created already');
   }
-  return await info(token, connection);
+  return console.log('Token info:', await info(token, connection));
 }
