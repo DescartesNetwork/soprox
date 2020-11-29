@@ -1,0 +1,94 @@
+[
+  {
+    "key": "token",
+    "schema": [
+      {
+        "key": "symbol",
+        "type": "[char;4]"
+      },
+      {
+        "key": "total_supply",
+        "type": "u64"
+      },
+      {
+        "key": "decimals",
+        "type": "u8"
+      },
+      {
+        "key": "initialized",
+        "type": "bool"
+      }
+    ]
+  },
+  {
+    "key": "source",
+    "schema": [
+      {
+        "key": "owner",
+        "type": "pub"
+      },
+      {
+        "key": "token",
+        "type": "pub"
+      },
+      {
+        "key": "amount",
+        "type": "u64"
+      },
+      {
+        "key": "initialized",
+        "type": "bool"
+      }
+    ]
+  },
+  {
+    "key": "destination",
+    "schema": [
+      {
+        "key": "owner",
+        "type": "pub"
+      },
+      {
+        "key": "token",
+        "type": "pub"
+      },
+      {
+        "key": "amount",
+        "type": "u64"
+      },
+      {
+        "key": "initialized",
+        "type": "bool"
+      }
+    ]
+  },
+  {
+    "key": "delegation",
+    "schema": [
+      {
+        "key": "owner",
+        "type": "pub"
+      },
+      {
+        "key": "token",
+        "type": "pub"
+      },
+      {
+        "key": "source",
+        "type": "pub"
+      },
+      {
+        "key": "delegate",
+        "type": "pub"
+      },
+      {
+        "key": "amount",
+        "type": "u64"
+      },
+      {
+        "key": "initialized",
+        "type": "bool"
+      }
+    ]
+  }
+]

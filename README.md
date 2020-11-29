@@ -20,12 +20,13 @@ $ cd my-app
 $ npm run localnet:update
 $ npm run localnet:up
 $ npm run build
+$ npm run deploy
 $ npm start
 ```
 
 SoproX will generate a basic form of a SRP for you including an on-chain program and a off-chain client. Then you can modify these files to build up your owned programs.
 
-## <a name="installation"></a>Installation
+## <a name="installation"/>Installation
 
 If this is your first time, try this [Installtion Notes](https://github.com/solana-labs/example-helloworld/blob/master/README-installation-notes.md) that is authentic from Solana.
 
