@@ -204,9 +204,9 @@ impl Processor {
       //
       AppInstruction::TransferFrom { amount } => {
         info!("Calling TransferFrom function");
-        // Extract accounts: delegate, token, delegation, source, destination
+        // Extract accounts: delegated, token, delegation, source, destination
         let accounts_iter = &mut accounts.iter();
-        let delegate = next_account_info(accounts_iter)?;
+        let dlg_acc = next_account_info(accounts_iter)?;
         let token_acc = next_account_info(accounts_iter)?;
         let delegation_acc = next_account_info(accounts_iter)?;
         let src_acc = next_account_info(accounts_iter)?;
@@ -236,7 +236,7 @@ impl Processor {
         {
           return Err(AppError::IncorrectTokenId.into());
         }
-        if !delegate.is_signer || *delegate.key != delegation_data.delegate {
+        if !dlg_acc.is_signer || *dlg_acc.key != delegation_data.delegate {
           return Err(AppError::InvalidOwner.into());
         }
         if *src_acc.key == *dst_acc.key {

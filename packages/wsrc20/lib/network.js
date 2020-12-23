@@ -79,7 +79,7 @@ const loadProgram = async (data, payer, connection) => {
     if (Buffer.from(data).toString('hex') != prevData) break history;
     console.log('The program has been loaded at:', address);
     const program = {
-      id: new PublicKey(address),
+      publicKey: new PublicKey(address),
       ...config
     }
     return program;
