@@ -1,9 +1,7 @@
-#![cfg(feature = "program")]
-
 use crate::error::AppError;
 use crate::instruction::AppInstruction;
 use crate::schema::{account::Account, delegation::Delegation, token::Token};
-use solana_sdk::{
+use solana_program::{
   account_info::{next_account_info, AccountInfo},
   entrypoint::ProgramResult,
   info,

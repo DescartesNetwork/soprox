@@ -1,5 +1,5 @@
 const {
-  Account, Connection, BPF_LOADER_DEPRECATED_PROGRAM_ID,
+  Account, Connection, BPF_LOADER_PROGRAM_ID,
   SystemProgram, Transaction, sendAndConfirmTransaction,
   BpfLoader, LAMPORTS_PER_SOL, PublicKey,
 } = require('@solana/web3.js');
@@ -39,7 +39,7 @@ const deployProgram = async (data, payer, connection) => {
     payer,
     program,
     data,
-    BPF_LOADER_DEPRECATED_PROGRAM_ID,
+    BPF_LOADER_PROGRAM_ID,
   );
   return program;
 }

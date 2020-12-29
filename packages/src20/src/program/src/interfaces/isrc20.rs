@@ -1,7 +1,5 @@
-#![cfg(feature = "program")]
-
 use arrayref::mut_array_refs;
-use solana_sdk::{
+use solana_program::{
   instruction::{AccountMeta, Instruction},
   program_error::ProgramError,
   pubkey::Pubkey,
@@ -37,7 +35,7 @@ impl ISRC20 {
     // Build accounts
     let mut accounts = Vec::with_capacity(3);
     accounts.push(AccountMeta::new_readonly(deployer, true));
-    accounts.push(AccountMeta::new_readonly(token_acc, true));
+    accounts.push(AccountMeta::new(token_acc, true));
     accounts.push(AccountMeta::new(dst_acc, true));
     // Return
     Ok(Instruction {
@@ -134,9 +132,9 @@ impl ISRC20 {
     let mut accounts = Vec::with_capacity(5);
     accounts.push(AccountMeta::new_readonly(owner, true));
     accounts.push(AccountMeta::new_readonly(token_acc, false));
-    accounts.push(AccountMeta::new_readonly(delegation_acc, true));
-    accounts.push(AccountMeta::new(src_acc, false));
-    accounts.push(AccountMeta::new(dlg_acc, false));
+    accounts.push(AccountMeta::new(delegation_acc, true));
+    accounts.push(AccountMeta::new_readonly(src_acc, false));
+    accounts.push(AccountMeta::new_readonly(dlg_acc, false));
     // Return
     Ok(Instruction {
       program_id,
@@ -163,7 +161,7 @@ impl ISRC20 {
     let mut accounts = Vec::with_capacity(5);
     accounts.push(AccountMeta::new_readonly(dlg_acc, true));
     accounts.push(AccountMeta::new_readonly(token_acc, false));
-    accounts.push(AccountMeta::new_readonly(delegation_acc, false));
+    accounts.push(AccountMeta::new(delegation_acc, false));
     accounts.push(AccountMeta::new(src_acc, false));
     accounts.push(AccountMeta::new(dst_acc, false));
     // Return
@@ -190,7 +188,7 @@ impl ISRC20 {
     let mut accounts = Vec::with_capacity(3);
     accounts.push(AccountMeta::new_readonly(owner, true));
     accounts.push(AccountMeta::new_readonly(token_acc, false));
-    accounts.push(AccountMeta::new_readonly(delegation_acc, false));
+    accounts.push(AccountMeta::new(delegation_acc, false));
     // Return
     Ok(Instruction {
       program_id,
@@ -215,7 +213,7 @@ impl ISRC20 {
     let mut accounts = Vec::with_capacity(3);
     accounts.push(AccountMeta::new_readonly(owner, true));
     accounts.push(AccountMeta::new_readonly(token_acc, false));
-    accounts.push(AccountMeta::new_readonly(delegation_acc, false));
+    accounts.push(AccountMeta::new(delegation_acc, false));
     // Return
     Ok(Instruction {
       program_id,
@@ -238,7 +236,7 @@ impl ISRC20 {
     let mut accounts = Vec::with_capacity(3);
     accounts.push(AccountMeta::new_readonly(owner, true));
     accounts.push(AccountMeta::new_readonly(token_acc, false));
-    accounts.push(AccountMeta::new_readonly(delegation_acc, false));
+    accounts.push(AccountMeta::new(delegation_acc, false));
     // Return
     Ok(Instruction {
       program_id,
@@ -261,7 +259,7 @@ impl ISRC20 {
     let mut accounts = Vec::with_capacity(3);
     accounts.push(AccountMeta::new_readonly(owner, true));
     accounts.push(AccountMeta::new_readonly(token_acc, false));
-    accounts.push(AccountMeta::new_readonly(target_acc, false));
+    accounts.push(AccountMeta::new(target_acc, false));
     // Return
     Ok(Instruction {
       program_id,
