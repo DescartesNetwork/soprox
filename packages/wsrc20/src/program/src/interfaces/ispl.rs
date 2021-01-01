@@ -8,21 +8,45 @@ use std::mem::size_of;
 pub struct ISPL {}
 
 impl ISPL {
-  pub fn transfer (
+  pub fn initialize_account(
     program_id: Pubkey,
-    amount: u64,
-    src: Pubkey,
-    dst: Pubkey,
+    owner: Pubkey,
+    token_acc: Pubkey,
+    target_acc: Pubkey,
   ) -> Result<Instruction, ProgramError> {
     // Build data
     let mut data = Vec::with_capacity(size_of::<Self>());
-    // Transfer - Code 1
+    // InitializeAccount - Code 1
     data.push(1);
+    // Build accounts
+    let mut accounts = Vec::with_capacity(3);
+    accounts.push(AccountMeta::new(target_acc, false));
+    accounts.push(AccountMeta::new(token_acc, false));
+    accounts.push(AccountMeta::new(owner, true));
+    // Return
+    Ok(Instruction {
+      program_id,
+      accounts,
+      data,
+    })
+  }
+  pub fn transfer(
+    program_id: Pubkey,
+    owner: Pubkey,
+    src_acc: Pubkey,
+    dst_acc: Pubkey,
+    amount: u64,
+  ) -> Result<Instruction, ProgramError> {
+    // Build data
+    let mut data = Vec::with_capacity(size_of::<Self>());
+    // Transfer - Code 3
+    data.push(3);
     data.extend_from_slice(&amount.to_le_bytes());
     // Build accounts
-    let mut accounts = Vec::with_capacity(2);
-    accounts.push(AccountMeta::new(src, true));
-    accounts.push(AccountMeta::new(dst, false));
+    let mut accounts = Vec::with_capacity(3);
+    accounts.push(AccountMeta::new(src_acc, false));
+    accounts.push(AccountMeta::new(dst_acc, false));
+    accounts.push(AccountMeta::new(owner, true));
     // Return
     Ok(Instruction {
       program_id,

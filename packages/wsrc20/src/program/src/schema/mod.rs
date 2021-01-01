@@ -1,2 +1,2 @@
-pub mod account;
-pub mod token;
+pub mod mint;
+pub mod wrapper;

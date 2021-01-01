@@ -15,10 +15,20 @@ pub use solana_program::program_error::PrintProgramError as PrintAppError;
 pub enum AppError {
   #[error("Invalid instruction")]
   InvalidInstruction,
+  #[error("Invalid owner")]
+  InvalidOwner,
   #[error("Incorrect program id")]
   IncorrectProgramId,
+  #[error("Incorrect token id")]
+  IncorrectTokenId,
+  #[error("Already constructed")]
+  ConstructorOnce,
+  #[error("Not yet initialized")]
+  NotInitialized,
   #[error("Operation overflowed")]
   Overflow,
+  #[error("Wrapper unmatched")]
+  UnmatchedWrapper,
 }
 
 impl From<AppError> for ProgramError {
@@ -40,8 +50,13 @@ impl PrintProgramError for AppError {
   {
     match self {
       AppError::InvalidInstruction => info!("Error: Invalid instruction"),
+      AppError::InvalidOwner => info!("Error: Invalid owner"),
       AppError::IncorrectProgramId => info!("Error: Incorrect program id"),
+      AppError::IncorrectTokenId => info!("Error: Incorrect token id"),
+      AppError::ConstructorOnce => info!("Error: Already constructed"),
+      AppError::NotInitialized => info!("Error: Not yet initialized"),
       AppError::Overflow => info!("Error: Operation overflowed"),
+      AppError::UnmatchedWrapper => info!("Error: Wrapper unmatched"),
     }
   }
 }

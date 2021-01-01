@@ -9,9 +9,9 @@ const { establishConnection, loadPayer } = require('../../lib/network');
 const store = require('../../lib/store');
 
 /**
- * Call transfer
+ * Wrap
  */
-const callTransfer = async (amount, dummy, token, source, destination, programId, payer, connection) => {
+const wrap = async (amount, dummy, token, source, destination, programId, payer, connection) => {
   console.log('Calling Transfer to', dummy.publicKey.toBase58());
   const schema = [
     { key: 'code', type: 'u8' },
@@ -71,7 +71,7 @@ const main = async () => {
   const { connection, payer, programId, registers: [dummy, token, source, destination] } = await init();
 
   console.log('Current data:', await info(source, connection));
-  await callTransfer(1000n, dummy, token, source, destination, programId, payer, connection);
+  await wrap(1000n, dummy, token, source, destination, programId, payer, connection);
   console.log('New data:', await info(source, connection));
 }
 
