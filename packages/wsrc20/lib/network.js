@@ -47,8 +47,20 @@ const deployProgram = async (data, payer, connection) => {
 /**
  * Deploy a register to the cluster
  */
-const deployRegister = async (space, payer, programId, connection) => {
-  const register = new Account();
+const deployRegister = async (space, offTheCurve, payer, programId, connection) => {
+  const loop = async () => {
+    const account = new Account();
+    if (!offTheCurve) return account;
+    // Require the account falls off the curve
+    const seeds = [account.publicKey.toBuffer()];
+    try {
+      await PublicKey.createProgramAddress(seeds, programId);
+      return account;
+    } catch (er) {
+      return await loop();
+    }
+  };
+  const register = await loop();
   let transaction = new Transaction();
   const lamports = await connection.getMinimumBalanceForRentExemption(space);
   transaction.add(SystemProgram.createAccount({
@@ -104,28 +116,24 @@ const loadProgram = async (data, payer, connection) => {
 /**
  * Load registers
  */
-const loadRegisters = async (schema, payer, program, connection) => {
+const loadRegisters = async (schema, payer, connection) => {
   const filename = 'abi';
   const data = store.load(filename);
 
-  const { programAddress, schema: storedSchema } = data || {};
-  if (programAddress == program.address && storedSchema)
-    return storedSchema.map(register => {
-      register.publicKey = new PublicKey(program.address);
-      return register;
-    });
+  if (data) return data.map(each => {
+    each.publicKey = new PublicKey(each.address);
+    return each;
+  });
 
   const layout = await Promise.all(schema.map(async each => {
     const space = soproxABI.span(each);
-    const account = await deployRegister(space, payer, program.publicKey, connection);
+    const programId = new PublicKey(each.program);
+    const account = await deployRegister(space, each.offTheCurve, payer, programId, connection);
     each.address = account.publicKey.toBase58();
     each.secretKey = Buffer.from(account.secretKey).toString('hex');
     return each;
   }));
-  store.save(filename, {
-    programAddress: program.address,
-    schema: layout
-  });
+  store.save(filename, layout);
   return layout.map(register => {
     register.publicKey = new PublicKey(register.address);
     return register;

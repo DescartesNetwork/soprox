@@ -32,6 +32,7 @@ impl Processor {
         let spl_treasury_acc = next_account_info(accounts_iter)?;
         let spl_token_acc = next_account_info(accounts_iter)?;
         let spl_token_program = next_account_info(accounts_iter)?;
+        let sysvar_rent_acc = next_account_info(accounts_iter)?;
         if wrapper_acc.owner != program_id {
           return Err(AppError::IncorrectProgramId.into());
         }
@@ -49,7 +50,7 @@ impl Processor {
 
         let token_constructor_ix = ISRC20::token_constructor(
           *src20_token_program.key,
-          *token_owner_acc.key,
+          token_owner_key,
           *src20_token_acc.key,
           *src20_treasury_acc.key,
           symbol,
@@ -69,19 +70,20 @@ impl Processor {
 
         let initialize_account_ix = ISPL::initialize_account(
           *spl_token_program.key,
-          *token_owner_acc.key,
+          token_owner_key,
           *spl_token_acc.key,
           *spl_treasury_acc.key,
+          *sysvar_rent_acc.key,
         )?;
-        invoke_signed(
+        invoke(
           &initialize_account_ix,
           &[
             spl_token_program.clone(),
             token_owner_acc.clone(),
             spl_token_acc.clone(),
             spl_treasury_acc.clone(),
+            sysvar_rent_acc.clone(),
           ],
-          &[&seed],
         )?;
 
         // Add wrapper data

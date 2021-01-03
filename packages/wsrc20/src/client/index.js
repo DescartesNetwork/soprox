@@ -2,7 +2,9 @@ const {
   sendAndConfirmTransaction,
   TransactionInstruction,
   Transaction,
-  PublicKey
+  Account,
+  PublicKey,
+  SYSVAR_RENT_PUBKEY,
 } = require('@solana/web3.js');
 const soproxABI = require('soprox-abi');
 const { establishConnection, loadPayer } = require('../../lib/network');
@@ -21,7 +23,7 @@ const constructor = async (
   payer,
   connection
 ) => {
-  console.log('Calling Constructor to', dummy.publicKey.toBase58());
+  console.log('Calling Constructor to', wrapper.publicKey.toBase58());
   const schema = [
     { key: 'code', type: 'u8' },
     { key: 'symbol', type: '[char;4]' },
@@ -32,19 +34,20 @@ const constructor = async (
   });
   const seeds = [wrapper.publicKey.toBuffer()];
   const tokenOwnerPublicKey = await PublicKey.createProgramAddress(seeds, programId);
-  const src20ProgramId = new PublicKey('CCjbEWaD2BbqC3GLhsjQKt59jaWqebvAC6fYqzF2uLDk');
+  const src20ProgramId = new PublicKey('G3JuvCS4Q6u8B9QtHPRyAEBSvggfxQySrzWB1YNF5i1v');
   const splTokenPublickey = new PublicKey('FAA9xNJzgwsy2Awd2AzMigoF8rTr4E6nUrE8ohdBfs6b');
   const splProgramId = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
   const instruction = new TransactionInstruction({
     keys: [
       { pubkey: wrapper.publicKey, isSigner: true, isWritable: true },
-      { pubkey: tokenOwnerPublicKey, isSigner: true, isWritable: false },
+      { pubkey: tokenOwnerPublicKey, isSigner: false, isWritable: false },
       { pubkey: src20_treasury.publicKey, isSigner: true, isWritable: true },
       { pubkey: src20_token.publicKey, isSigner: true, isWritable: true },
       { pubkey: src20ProgramId, isSigner: false, isWritable: false },
-      { pubkey: spl_treasury.publicKey, isSigner: true, isWritable: true },
+      { pubkey: spl_treasury.publicKey, isSigner: false, isWritable: true },
       { pubkey: splTokenPublickey, isSigner: false, isWritable: false },
       { pubkey: splProgramId, isSigner: false, isWritable: false },
+      { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
     ],
     programId,
     data: layout.toBuffer()
@@ -52,7 +55,73 @@ const constructor = async (
   const transaction = new Transaction();
   transaction.add(instruction);
   await sendAndConfirmTransaction(
-    connection, transaction, [payer],
+    connection,
+    transaction,
+    [
+      payer,
+      new Account(Buffer.from(wrapper.secretKey, 'hex')),
+      new Account(Buffer.from(src20_treasury.secretKey, 'hex')),
+      new Account(Buffer.from(src20_token.secretKey, 'hex')),
+    ],
+    {
+      skipPreflight: true,
+      commitment: 'recent',
+    });
+}
+
+/**
+ * Wrap
+ */
+const wrap = async (
+  amount,
+  wrapper,
+  src20_treasury,
+  src20_token,
+  spl_treasury,
+  programId,
+  payer,
+  connection
+) => {
+  console.log('Calling Wrap to', wrapper.publicKey.toBase58());
+  const schema = [
+    { key: 'code', type: 'u8' },
+    { key: 'amount', type: 'u64' },
+  ]
+  const layout = new soproxABI.struct(schema, {
+    code: 1,
+    amount,
+  });
+  const seeds = [wrapper.publicKey.toBuffer()];
+  const tokenOwnerPublicKey = await PublicKey.createProgramAddress(seeds, programId);
+  const src20ProgramId = new PublicKey('G3JuvCS4Q6u8B9QtHPRyAEBSvggfxQySrzWB1YNF5i1v');
+  const splTokenPublickey = new PublicKey('FAA9xNJzgwsy2Awd2AzMigoF8rTr4E6nUrE8ohdBfs6b');
+  const splProgramId = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+  const instruction = new TransactionInstruction({
+    keys: [
+      { pubkey: wrapper.publicKey, isSigner: true, isWritable: true },
+      { pubkey: tokenOwnerPublicKey, isSigner: false, isWritable: false },
+      { pubkey: src20_treasury.publicKey, isSigner: true, isWritable: true },
+      { pubkey: src20_token.publicKey, isSigner: true, isWritable: true },
+      { pubkey: src20ProgramId, isSigner: false, isWritable: false },
+      { pubkey: spl_treasury.publicKey, isSigner: false, isWritable: true },
+      { pubkey: splTokenPublickey, isSigner: false, isWritable: false },
+      { pubkey: splProgramId, isSigner: false, isWritable: false },
+      { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
+    ],
+    programId,
+    data: layout.toBuffer()
+  });
+  const transaction = new Transaction();
+  transaction.add(instruction);
+  await sendAndConfirmTransaction(
+    connection,
+    transaction,
+    [
+      payer,
+      new Account(Buffer.from(wrapper.secretKey, 'hex')),
+      new Account(Buffer.from(src20_treasury.secretKey, 'hex')),
+      new Account(Buffer.from(src20_token.secretKey, 'hex')),
+    ],
     {
       skipPreflight: true,
       commitment: 'recent',
@@ -75,7 +144,7 @@ const init = async () => {
   const payer = await loadPayer(connection);
   const program = store.load('program');
   const programId = new PublicKey(program.address);
-  const registers = store.load('abi').schema.map(register => {
+  const registers = store.load('abi').map(register => {
     register.publicKey = new PublicKey(register.address);
     return register;
   });
@@ -89,9 +158,8 @@ const main = async () => {
     registers: [wrapper, src20_treasury, src20_token, spl_treasury]
   } = await init();
 
-  console.log('Current data:', await info(source, connection));
   await constructor(
-    ['S', 'P', 'R', 'X'],
+    ['S', 'P', 'X', '-'],
     wrapper,
     src20_treasury,
     src20_token,
@@ -100,7 +168,7 @@ const main = async () => {
     payer,
     connection
   );
-  console.log('New data:', await info(source, connection));
+  console.log('Data:', await info(wrapper, connection));
 }
 
 try { main() } catch (er) { console.error(er) }

@@ -27,7 +27,7 @@ impl Processor {
         total_supply,
         decimals,
       } => {
-        info!("Calling TokenContructor function");
+        info!("Calling TokenConstructor function");
         let accounts_iter = &mut accounts.iter();
         // Extract owner & constructor account
         let deployer = next_account_info(accounts_iter)?;
@@ -39,7 +39,7 @@ impl Processor {
         if !deployer.is_signer || !token_acc.is_signer || !dst_acc.is_signer {
           return Err(AppError::InvalidOwner.into());
         }
-        // Write contructor data
+        // Write constructor data
         let mut token_data = Token::unpack_unchecked(&token_acc.data.borrow())?;
         let mut dst_data = Account::unpack_unchecked(&dst_acc.data.borrow())?;
         if token_data.is_initialized() || dst_data.is_initialized() {
