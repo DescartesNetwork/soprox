@@ -34,8 +34,8 @@ impl AppInstruction {
           .map(u64::from_le_bytes)
           .ok_or(AppError::InvalidInstruction)?;
         match tag {
-          0 => Self::Wrap { amount },
-          1 => Self::Unwrap { amount },
+          1 => Self::Wrap { amount },
+          2 => Self::Unwrap { amount },
           _ => unreachable!(),
         }
       }
