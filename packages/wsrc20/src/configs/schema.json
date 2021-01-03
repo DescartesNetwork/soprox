@@ -1,15 +1,31 @@
 [
   {
-    "key": "dummy",
+    "key": "wrapper",
     "schema": [
       {
-        "key": "numGreets",
-        "type": "u64"
+        "key": "src20_treasury",
+        "type": "pub"
+      },
+      {
+        "key": "src20",
+        "type": "pub"
+      },
+      {
+        "key": "spl_treasury",
+        "type": "pub"
+      },
+      {
+        "key": "spl",
+        "type": "pub"
+      },
+      {
+        "key": "initialized",
+        "type": "bool"
       }
     ]
   },
   {
-    "key": "token",
+    "key": "src20_token",
     "schema": [
       {
         "key": "symbol",
@@ -30,7 +46,7 @@
     ]
   },
   {
-    "key": "source",
+    "key": "src20_treasury",
     "schema": [
       {
         "key": "owner",
@@ -51,14 +67,14 @@
     ]
   },
   {
-    "key": "destination",
+    "key": "spl_treasury",
     "schema": [
       {
-        "key": "owner",
+        "key": "mint",
         "type": "pub"
       },
       {
-        "key": "token",
+        "key": "owner",
         "type": "pub"
       },
       {
@@ -66,8 +82,24 @@
         "type": "u64"
       },
       {
-        "key": "initialized",
-        "type": "bool"
+        "key": "delegate",
+        "type": "pub"
+      },
+      {
+        "key": "state",
+        "type": "u8"
+      },
+      {
+        "key": "is_native",
+        "type": "u64"
+      },
+      {
+        "key": "delegated_amount",
+        "type": "u64"
+      },
+      {
+        "key": "close_authority",
+        "type": "pub"
       }
     ]
   }

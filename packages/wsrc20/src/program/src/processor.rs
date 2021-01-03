@@ -24,7 +24,6 @@ impl Processor {
       AppInstruction::Constructor { symbol } => {
         info!("Calling Constructor function");
         let accounts_iter = &mut accounts.iter();
-        let owner = next_account_info(accounts_iter)?;
         let wrapper_acc = next_account_info(accounts_iter)?;
         let token_owner_acc = next_account_info(accounts_iter)?; // For both types
         let src20_treasury_acc = next_account_info(accounts_iter)?;
@@ -39,7 +38,7 @@ impl Processor {
 
         let seed: &[&[_]] = &[&wrapper_acc.key.to_bytes()[..]];
         let token_owner_key = Pubkey::create_program_address(&seed, program_id)?;
-        if !owner.is_signer || !wrapper_acc.is_signer || token_owner_key != *token_owner_acc.key {
+        if !wrapper_acc.is_signer || token_owner_key != *token_owner_acc.key {
           return Err(AppError::InvalidOwner.into());
         }
         let mut wrapper_data = Wrapper::unpack_unchecked(&wrapper_acc.data.borrow())?;
@@ -86,11 +85,10 @@ impl Processor {
         )?;
 
         // Add wrapper data
-        wrapper_data.owner = *owner.key;
         wrapper_data.src20_treasury = *src20_treasury_acc.key;
-        wrapper_data.src20 = *src20_token_acc.key;
+        wrapper_data.src20_token = *src20_token_acc.key;
         wrapper_data.spl_treasury = *spl_treasury_acc.key;
-        wrapper_data.spl = *spl_token_acc.key;
+        wrapper_data.spl_token = *spl_token_acc.key;
         wrapper_data.initialized = true;
         Wrapper::pack(wrapper_data, &mut wrapper_acc.data.borrow_mut())?;
 
@@ -122,9 +120,9 @@ impl Processor {
         }
         let wrapper_data = Wrapper::unpack(&wrapper_acc.data.borrow())?;
         if wrapper_data.src20_treasury != *src20_treasury_acc.key
-          || wrapper_data.src20 != *src20_token_acc.key
+          || wrapper_data.src20_token != *src20_token_acc.key
           || wrapper_data.spl_treasury != *spl_treasury_acc.key
-          || wrapper_data.spl != *spl_token_acc.key
+          || wrapper_data.spl_token != *spl_token_acc.key
         {
           return Err(AppError::UnmatchedWrapper.into());
         }
@@ -194,9 +192,9 @@ impl Processor {
         }
         let wrapper_data = Wrapper::unpack(&wrapper_acc.data.borrow())?;
         if wrapper_data.src20_treasury != *src20_treasury_acc.key
-          || wrapper_data.src20 != *src20_token_acc.key
+          || wrapper_data.src20_token != *src20_token_acc.key
           || wrapper_data.spl_treasury != *spl_treasury_acc.key
-          || wrapper_data.spl != *spl_token_acc.key
+          || wrapper_data.spl_token != *spl_token_acc.key
         {
           return Err(AppError::UnmatchedWrapper.into());
         }
