@@ -8,6 +8,20 @@ const store = require('../lib/store');
 const soproxConf = require('../soprox.config.json');
 
 /**
+ * Safely create account that falls off the curve
+ */
+const safelyCreateAccount = async (programId) => {
+  const account = new Account();
+  const seeds = [account.publicKey.toBuffer()];
+  try {
+    await PublicKey.createProgramAddress(seeds, programId);
+    return account;
+  } catch (er) {
+    return await safelyCreateAccount(programId);
+  }
+};
+
+/**
  * Establish a connection to the cluster
  */
 const establishConnection = async () => {
@@ -47,20 +61,8 @@ const deployProgram = async (data, payer, connection) => {
 /**
  * Deploy a register to the cluster
  */
-const deployRegister = async (space, offTheCurve, payer, programId, connection) => {
-  const loop = async () => {
-    const account = new Account();
-    if (!offTheCurve) return account;
-    // Require the account falls off the curve
-    const seeds = [account.publicKey.toBuffer()];
-    try {
-      await PublicKey.createProgramAddress(seeds, programId);
-      return account;
-    } catch (er) {
-      return await loop();
-    }
-  };
-  const register = await loop();
+const deployRegister = async (space, payer, programId, connection) => {
+  const register = await safelyCreateAccount(programId);
   let transaction = new Transaction();
   const lamports = await connection.getMinimumBalanceForRentExemption(space);
   transaction.add(SystemProgram.createAccount({
@@ -128,7 +130,7 @@ const loadRegisters = async (schema, payer, connection) => {
   const layout = await Promise.all(schema.map(async each => {
     const space = soproxABI.span(each);
     const programId = new PublicKey(each.program);
-    const account = await deployRegister(space, each.offTheCurve, payer, programId, connection);
+    const account = await deployRegister(space, payer, programId, connection);
     each.address = account.publicKey.toBase58();
     each.secretKey = Buffer.from(account.secretKey).toString('hex');
     return each;

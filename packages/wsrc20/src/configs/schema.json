@@ -2,7 +2,6 @@
   {
     "key": "wrapper",
     "program": null,
-    "offTheCurve": true,
     "schema": [
       {
         "key": "src20_treasury",
@@ -29,7 +28,6 @@
   {
     "key": "src20_treasury",
     "program": "G3JuvCS4Q6u8B9QtHPRyAEBSvggfxQySrzWB1YNF5i1v",
-    "offTheCurve": false,
     "schema": [
       {
         "key": "owner",
@@ -52,7 +50,6 @@
   {
     "key": "src20_acc",
     "program": "G3JuvCS4Q6u8B9QtHPRyAEBSvggfxQySrzWB1YNF5i1v",
-    "offTheCurve": false,
     "schema": [
       {
         "key": "owner",
@@ -75,7 +72,6 @@
   {
     "key": "src20_token",
     "program": "G3JuvCS4Q6u8B9QtHPRyAEBSvggfxQySrzWB1YNF5i1v",
-    "offTheCurve": false,
     "schema": [
       {
         "key": "symbol",
@@ -98,7 +94,6 @@
   {
     "key": "spl_treasury",
     "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-    "offTheCurve": false,
     "schema": [
       {
         "key": "mint",
@@ -149,7 +144,6 @@
   {
     "key": "spl_acc",
     "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-    "offTheCurve": false,
     "schema": [
       {
         "key": "mint",
