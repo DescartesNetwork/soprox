@@ -2,7 +2,7 @@ use num_derive::FromPrimitive as DeriveFromPrimitive;
 use num_traits::FromPrimitive;
 use solana_program::{
   decode_error::DecodeError,
-  info,
+  msg,
   program_error::{PrintProgramError, ProgramError},
 };
 use thiserror::Error;
@@ -39,9 +39,9 @@ impl PrintProgramError for AppError {
     E: 'static + std::error::Error + DecodeError<E> + PrintProgramError + FromPrimitive,
   {
     match self {
-      AppError::InvalidInstruction => info!("Error: Invalid instruction"),
-      AppError::IncorrectProgramId => info!("Error: Incorrect program id"),
-      AppError::Overflow => info!("Error: Operation overflowed"),
+      AppError::InvalidInstruction => msg!("Error: Invalid instruction"),
+      AppError::IncorrectProgramId => msg!("Error: Incorrect program id"),
+      AppError::Overflow => msg!("Error: Operation overflowed"),
     }
   }
 }

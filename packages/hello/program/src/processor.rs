@@ -4,7 +4,7 @@ use crate::schema::hello::Hello;
 use solana_program::{
   account_info::{next_account_info, AccountInfo},
   entrypoint::ProgramResult,
-  info,
+  msg,
   program_pack::Pack,
   pubkey::Pubkey,
 };
@@ -20,7 +20,7 @@ impl Processor {
     let instruction = AppInstruction::unpack(instruction_data)?;
     match instruction {
       AppInstruction::SayHello { amount } => {
-        info!("Calling SayHello function");
+        msg!("Calling SayHello function");
         let accounts_iter = &mut accounts.iter();
         let account = next_account_info(accounts_iter)?;
         if account.owner != program_id {
