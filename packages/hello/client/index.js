@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const { Account } = require('@solana/web3.js');
 const Hello = require('./hello');
-const config = require('../soprox.config.json');
+const { nodeUrl } = require('../soprox.config.json');
 
 
 const loadProgramAddress = () => {
@@ -13,6 +13,17 @@ const loadProgramAddress = () => {
     return program.publicKey.toBase58();
   } catch (er) {
     throw new Error('You must build and deploy the program first');
+  }
+}
+
+const loadPayer = () => {
+  const dir = path.join(__dirname, '../dist/payer-keypair.json');
+  try {
+    const payerKey = require(dir);
+    const payer = new Account(payerKey);
+    return payer;
+  } catch (er) {
+    throw new Error('You must create a payer account first');
   }
 }
 
@@ -38,11 +49,11 @@ const loadHelloAddress = async (helloInstance, payer) => {
  */
 (async () => {
   try {
-    const { nodeUrl, payer: secretKey } = config;
-    const payer = new Account(Buffer.from(secretKey, 'hex'));
+    const payer = loadPayer();
     const programAddress = loadProgramAddress();
     const hello = new Hello(programAddress, nodeUrl);
     console.log('*** Calling to program:', programAddress);
+    console.log('*** Payer:', payer.publicKey.toBase58());
     // Build account to store the hello data
     const helloAddress = await loadHelloAddress(hello, payer);
     // Get hello data

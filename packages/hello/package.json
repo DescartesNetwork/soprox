@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Created by Soprox",
   "main": "index.js",
-  "testnetDefaultChannel": "v1.4.8",
+  "testnetDefaultChannel": "v1.6.9",
   "scripts": {
     "start": "node ./client/index.js",
     "build": "cargo build-bpf --manifest-path=./program/Cargo.toml --bpf-out-dir=dist",

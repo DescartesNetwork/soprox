@@ -1,4 +1,3 @@
 {
-  "nodeUrl": "https://devnet.solana.com",
-  "payer": ""
+  "nodeUrl": "https://devnet.solana.com"
 }
