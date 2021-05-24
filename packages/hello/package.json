@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node ./client/index.js",
     "build": "cargo build-bpf --manifest-path=./program/Cargo.toml --bpf-out-dir=dist",
-    "deploy": "solana program deploy ./dist/main.so"
+    "deploy": "solana program deploy -k ./dist/payer-keypair.json ./dist/main.so"
   },
   "repository": {
     "type": "git",
